@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Bundle Information -->
+    <key>CFBundleIdentifier</key>
+    <string>com.artknowledgegraph.app.uitests</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundlePackageType</key>
+    <string>BNDL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <!-- Privacy Permissions -->
+    <key>NSCameraUsageDescription</key>
+    <string>UI Tests require camera access to verify artwork capture functionality</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>UI Tests require photo library access to verify artwork selection functionality</string>
+
+    <!-- Device Requirements -->
+    <key>MinimumOSVersion</key>
+    <string>14.0</string>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>app-sandbox</string>
+        <string>network-client</string>
+    </array>
+
+    <!-- Interface Orientations -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+
+    <!-- Test Configuration -->
+    <key>TestTargetName</key>
+    <string>ArtKnowledgeGraphUITests</string>
+    <key>TestHost</key>
+    <string>$(BUILT_PRODUCTS_DIR)/ArtKnowledgeGraph.app/ArtKnowledgeGraph</string>
+    <key>PlatformName</key>
+    <string>$(PLATFORM_NAME)</string>
+    <key>TestLanguage</key>
+    <string>en</string>
+    <key>TestRegion</key>
+    <string>US</string>
+    <key>TestParallelizationEnabled</key>
+    <true/>
+
+    <!-- Coverage Settings -->
+    <key>TestCoverageEnabled</key>
+    <true/>
+    <key>TestCoverageTargets</key>
+    <array>
+        <string>ArtKnowledgeGraph</string>
+    </array>
+    <key>TestCoverageMinimumPercentage</key>
+    <integer>80</integer>
+
+    <!-- Environment Settings -->
+    <key>SWIFT_VERSION</key>
+    <string>5.0</string>
+    <key>TARGETED_DEVICE_FAMILY</key>
+    <string>1,2</string>
+    <key>ENABLE_TESTABILITY</key>
+    <string>YES</string>
+    <key>ENABLE_TESTING_SEARCH_PATHS</key>
+    <string>YES</string>
+</dict>
+</plist>
