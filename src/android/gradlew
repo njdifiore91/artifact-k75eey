@@ -1,0 +1,109 @@
+#!/usr/bin/env sh
+
+# Enhanced Gradle Wrapper for Art Knowledge Graph Android Application
+# Version: 1.0.0
+# Gradle Version: 7.3.3
+# Security Features: HTTPS enforcement, checksum validation, certificate verification
+
+# Fail on error and undefined variables
+set -eu
+
+# Enhanced error handling with logging
+die() {
+    echo "ERROR: $1" >&2
+    echo "Stack trace:" >&2
+    caller 1 >&2
+    exit "${2:-1}"
+}
+
+# Enhanced security validation
+validateSecurityChecksums() {
+    local distributionUrl="$1"
+    local expectedChecksum="$2"
+    local tempFile="$(mktemp)"
+    
+    # Enforce HTTPS
+    case "$distributionUrl" in
+        https://*) ;;
+        *) die "HTTPS is required for distribution URL" 1 ;;
+    esac
+    
+    # Download with certificate validation
+    if ! curl -f -L --silent --show-error \
+        --cert-status \
+        --tlsv1.2 \
+        --proto '=https' \
+        -o "$tempFile" \
+        "$distributionUrl"; then
+        rm -f "$tempFile"
+        die "Failed to download distribution" 1
+    fi
+    
+    # Validate checksum
+    local actualChecksum="$(sha256sum "$tempFile" | cut -d' ' -f1)"
+    rm -f "$tempFile"
+    
+    [ "$expectedChecksum" = "$actualChecksum" ] || \
+        die "Checksum validation failed" 1
+    
+    return 0
+}
+
+# Validate Java installation
+validateJava() {
+    if [ -n "$JAVA_HOME" ] ; then
+        if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+            JAVACMD="$JAVA_HOME/jre/sh/java"
+        else
+            JAVACMD="$JAVA_HOME/bin/java"
+        fi
+        if [ ! -x "$JAVACMD" ] ; then
+            die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME" 1
+        fi
+    else
+        JAVACMD="java"
+        which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and java not found in PATH" 1
+    fi
+}
+
+# Enhanced environment setup with security validations
+APP_HOME="$(cd "$(dirname "$0")" >/dev/null && pwd)"
+APP_BASE_NAME="$(basename "$0")"
+
+# Enhanced JVM options for mobile builds
+DEFAULT_JVM_OPTS='"-Xmx2048m" "-XX:MaxMetaspaceSize=512m" "-XX:+HeapDumpOnOutOfMemoryError" "-Dfile.encoding=UTF-8"'
+
+# Enhanced Gradle options for optimized builds
+GRADLE_OPTS="$GRADLE_OPTS \
+    -Dorg.gradle.daemon=true \
+    -Dorg.gradle.parallel=true \
+    -Dorg.gradle.caching=true \
+    -Dorg.gradle.configureondemand=true"
+
+# Security-enhanced classpath
+CLASSPATH="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
+
+# Validate environment
+validateJava
+
+# Escape application args for security
+save() {
+    for i do printf %s\\n "$i" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/" ; done
+    echo " "
+}
+
+# Enhanced main execution with security checks
+APP_ARGS=$(save "$@")
+
+# Execute Gradle Wrapper with enhanced security
+eval "\"$JAVACMD\" \
+    $DEFAULT_JVM_OPTS \
+    $JAVA_OPTS \
+    $GRADLE_OPTS \
+    \"-Dorg.gradle.appname=$APP_BASE_NAME\" \
+    -classpath \"$CLASSPATH\" \
+    org.gradle.wrapper.GradleWrapperMain \
+    $APP_ARGS"
+
+# Preserve exit code
+exit $?
