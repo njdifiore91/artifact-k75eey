@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>AppIDName</key>
+    <string>Art Knowledge Graph Development</string>
+    
+    <key>ApplicationIdentifierPrefix</key>
+    <array>
+        <string>XXXXXXXXXX</string>
+    </array>
+    
+    <key>CreationDate</key>
+    <date>2024-01-16T00:00:00Z</date>
+    
+    <key>Platform</key>
+    <array>
+        <string>iOS</string>
+    </array>
+    
+    <key>IsXcodeManaged</key>
+    <true/>
+    
+    <key>DeveloperCertificates</key>
+    <array>
+        <data><!-- Development Certificate Data from certificate.p12 --></data>
+    </array>
+    
+    <key>Entitlements</key>
+    <dict>
+        <key>application-identifier</key>
+        <string>XXXXXXXXXX.com.artknowledgegraph.app</string>
+        
+        <key>com.apple.developer.team-identifier</key>
+        <string>XXXXXXXXXX</string>
+        
+        <key>get-task-allow</key>
+        <true/>
+        
+        <key>aps-environment</key>
+        <string>development</string>
+        
+        <key>keychain-access-groups</key>
+        <array>
+            <string>XXXXXXXXXX.com.artknowledgegraph.app</string>
+            <string>XXXXXXXXXX.com.artknowledgegraph.app.shared</string>
+        </array>
+        
+        <key>com.apple.security.application-groups</key>
+        <array>
+            <string>group.com.artknowledgegraph.app</string>
+        </array>
+        
+        <key>com.apple.developer.associated-domains</key>
+        <array>
+            <string>applinks:artknowledgegraph.com</string>
+        </array>
+    </dict>
+    
+    <key>ExpirationDate</key>
+    <date>2025-01-16T00:00:00Z</date>
+    
+    <key>Name</key>
+    <string>Art Knowledge Graph Development</string>
+    
+    <key>ProvisionedDevices</key>
+    <array>
+        <!-- Device UDIDs will be automatically populated -->
+    </array>
+    
+    <key>TeamIdentifier</key>
+    <array>
+        <string>XXXXXXXXXX</string>
+    </array>
+    
+    <key>TeamName</key>
+    <string>Art Knowledge Graph Team</string>
+    
+    <key>TimeToLive</key>
+    <integer>365</integer>
+    
+    <key>UUID</key>
+    <string>11111111-2222-3333-4444-555555555555</string>
+    
+    <key>Version</key>
+    <integer>1</integer>
+    
+    <key>ProvisionsAllDevices</key>
+    <false/>
+    
+    <key>Capabilities</key>
+    <array>
+        <string>Push Notifications</string>
+        <string>Face ID</string>
+        <string>Camera</string>
+        <string>Photo Library</string>
+    </array>
+    
+    <key>DEREncoded</key>
+    <data><!-- Base64 encoded provisioning profile data --></data>
+    
+    <key>DevelopmentRegion</key>
+    <string>en</string>
+    
+    <key>MinimumSDKVersion</key>
+    <string>14.0</string>
+    
+    <key>SupportedPlatforms</key>
+    <array>
+        <string>iPhone</string>
+        <string>iPad</string>
+    </array>
+    
+    <key>SupportedArchitectures</key>
+    <array>
+        <string>arm64</string>
+        <string>armv7</string>
+    </array>
+</dict>
+</plist>
