@@ -1,0 +1,17 @@
+[Binary PNG file content with the following specifications:
+
+Dimensions: 72x72 pixels
+Density: hdpi (240dpi)
+Color Depth: 32-bit ARGB
+Format: PNG with lossless compression
+Design Requirements:
+- Material Design icon guidelines compliance
+- Square keyline grid layout
+- 2dp safe zone padding around edges
+- Subtle drop shadow for depth
+- Minimum 3:1 contrast ratio
+- Anti-aliased edges
+- sRGB color space
+- Optimized compression for quality/size balance
+
+The actual icon should be generated using appropriate image creation tools following these specifications.]
