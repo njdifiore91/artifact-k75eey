@@ -1,0 +1,152 @@
+name: Code Quality Checks
+
+on:
+  pull_request:
+    branches: 
+      - main
+      - develop
+      - 'feature/*'
+    paths:
+      - 'src/**'
+      - '.github/workflows/code-quality.yml'
+      - 'pyproject.toml'
+      - '.eslintrc.js'
+      - '.prettierrc'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'src/**'
+      - '.github/workflows/code-quality.yml'
+      - 'pyproject.toml'
+      - '.eslintrc.js'
+      - '.prettierrc'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "18"
+  POETRY_VERSION: "1.4.2"
+  CACHE_PREFIX: "v1"
+
+jobs:
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: '**/pyproject.toml'
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pypoetry
+            .venv
+          key: ${{ env.CACHE_PREFIX }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ env.CACHE_PREFIX }}-poetry-
+
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: ${{ env.CACHE_PREFIX }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ env.CACHE_PREFIX }}-node-
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+
+      - name: Install Python dependencies
+        run: |
+          cd src/backend
+          poetry install --no-interaction --no-root
+        if: steps.setup-python.outcome == 'success'
+
+      - name: Install Node.js dependencies
+        run: |
+          cd src/web
+          npm ci --prefer-offline
+        if: steps.setup-node.outcome == 'success'
+
+      - name: Run Python code quality checks
+        if: success()
+        run: |
+          cd src/backend
+          poetry run black . --check
+          poetry run isort . --check-only
+          poetry run mypy .
+          poetry run pylint src tests
+          poetry run pytest --cov=src --cov-report=xml
+
+      - name: Run TypeScript/JavaScript code quality checks
+        if: success()
+        run: |
+          cd src/web
+          npm run lint
+          npm run type-check
+          npm run prettier:check
+          npm run test:ci
+
+      - name: SonarQube Analysis
+        uses: sonarsource/sonarqube-scan-action@v1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=art-knowledge-graph
+            -Dsonar.sources=src
+            -Dsonar.python.coverage.reportPaths=src/backend/coverage.xml
+            -Dsonar.typescript.lcov.reportPaths=src/web/coverage/lcov.info
+            -Dsonar.qualitygate.wait=true
+
+      - name: Upload code coverage
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: code-coverage-report
+          path: |
+            src/backend/coverage.xml
+            src/web/coverage/
+          retention-days: 14
+
+      - name: Check quality gate
+        if: failure()
+        run: |
+          echo "Quality gate failed. Please check the SonarQube analysis results."
+          exit 1
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -rf ~/.cache/pip
+          rm -rf ~/.cache/poetry
+          rm -rf .venv
+          rm -rf **/node_modules
