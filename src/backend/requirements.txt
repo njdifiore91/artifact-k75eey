@@ -19,7 +19,7 @@ email-validator==2.0.0
 fastapi==0.100.0
 fastapi-limiter==0.1.5
 flake8==6.0.0
-freezegun==1.2.0
+freezegun==1.5.1
 gunicorn==20.1.0
 httpx==0.24.0
 importlib-metadata==6.0.0
