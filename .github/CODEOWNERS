@@ -1,0 +1,33 @@
+# Require review from core maintainers team
+* @artknowledgegraph/core-maintainers
+
+# Mobile Platform Ownership
+# Android application files
+src/android/** @artknowledgegraph/android-team
+
+# iOS application files
+src/ios/** @artknowledgegraph/ios-team
+
+# Backend Services Ownership
+# General backend services
+src/backend/** @artknowledgegraph/backend-team
+
+# Authentication service - requires security review
+src/backend/auth_service/** @artknowledgegraph/security-team @artknowledgegraph/backend-team
+
+# Graph service - requires data team review
+src/backend/graph_service/** @artknowledgegraph/data-team @artknowledgegraph/backend-team
+
+# API Gateway - requires security review
+src/backend/api_gateway/** @artknowledgegraph/backend-team @artknowledgegraph/security-team
+
+# Infrastructure Configuration
+# General infrastructure files
+infrastructure/** @artknowledgegraph/devops-team
+
+# Infrastructure as Code - requires security review
+infrastructure/terraform/** @artknowledgegraph/devops-team @artknowledgegraph/security-team
+
+# CI/CD Configuration
+# GitHub Actions workflows
+.github/workflows/** @artknowledgegraph/devops-team
