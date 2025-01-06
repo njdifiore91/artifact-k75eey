@@ -1,0 +1,405 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Comprehensive monitoring dashboard for Art Knowledge Graph mobile application metrics across iOS and Android platforms",
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "User Session Duration",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "avg(mobile_session_duration_minutes{platform=~\"$platform\"}) by (platform)",
+          "legendFormat": "{{platform}} Average Session Duration",
+          "interval": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [
+        {
+          "value": 15,
+          "op": "lt",
+          "colorMode": "critical",
+          "fill": true,
+          "line": true
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "m",
+          "label": "Duration",
+          "min": 0
+        },
+        {
+          "format": "short",
+          "show": false
+        }
+      ]
+    },
+    {
+      "title": "Graph Generation Time",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(graph_generation_duration_seconds_bucket{platform=~\"$platform\"}[5m]))",
+          "legendFormat": "p95 Generation Time - {{platform}}",
+          "interval": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [
+        {
+          "value": 5,
+          "op": "gt",
+          "colorMode": "critical",
+          "fill": true,
+          "line": true
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "s",
+          "label": "Duration",
+          "min": 0
+        },
+        {
+          "format": "short",
+          "show": false
+        }
+      ]
+    },
+    {
+      "title": "App Crashes",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 3,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(increase(mobile_app_crashes_total{platform=~\"$platform\"}[24h])) by (version, platform)",
+          "legendFormat": "{{platform}} - {{version}}",
+          "interval": "",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Crashes",
+          "min": 0
+        },
+        {
+          "format": "short",
+          "show": false
+        }
+      ]
+    },
+    {
+      "title": "API Response Times",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 4,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(mobile_api_request_duration_seconds_bucket{platform=~\"$platform\", endpoint=~\"$endpoint\"}[5m]))",
+          "legendFormat": "{{platform}} - {{endpoint}}",
+          "interval": "",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "s",
+          "label": "Response Time",
+          "min": 0
+        },
+        {
+          "format": "short",
+          "show": false
+        }
+      ]
+    },
+    {
+      "title": "Memory Usage",
+      "type": "gauge",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "avg(mobile_memory_usage_bytes{platform=~\"$platform\"}) by (platform)",
+          "legendFormat": "{{platform}}",
+          "interval": "",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "maxValue": 1000000000,
+        "minValue": 0,
+        "thresholds": [
+          { "value": 300000000, "color": "green" },
+          { "value": 500000000, "color": "yellow" },
+          { "value": 700000000, "color": "red" }
+        ],
+        "unit": "bytes"
+      }
+    },
+    {
+      "title": "Network Errors",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 16
+      },
+      "id": 6,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(mobile_network_errors_total{platform=~\"$platform\", error_type=~\"$error_type\"}[5m])) by (error_type, platform)",
+          "legendFormat": "{{platform}} - {{error_type}}",
+          "interval": "",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Errors/sec",
+          "min": 0
+        },
+        {
+          "format": "short",
+          "show": false
+        }
+      ]
+    },
+    {
+      "title": "Active Users",
+      "type": "stat",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 16
+      },
+      "id": 7,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(mobile_active_users{platform=~\"$platform\"}) by (platform)",
+          "legendFormat": "{{platform}}",
+          "interval": "",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal"
+      }
+    },
+    {
+      "title": "Graph Interaction Rate",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 8,
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(mobile_graph_interactions_total{platform=~\"$platform\", interaction_type=~\"$interaction_type\"}[5m])",
+          "legendFormat": "{{platform}} - {{interaction_type}}",
+          "interval": "",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Interactions/sec",
+          "min": 0
+        },
+        {
+          "format": "short",
+          "show": false
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "platform",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(platform)",
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": ["$__all"]
+        }
+      },
+      {
+        "name": "interaction_type",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(mobile_graph_interactions_total, interaction_type)",
+        "multi": true,
+        "includeAll": true
+      },
+      {
+        "name": "endpoint",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(mobile_api_request_duration_seconds_bucket, endpoint)",
+        "multi": true,
+        "includeAll": true
+      },
+      {
+        "name": "error_type",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(mobile_network_errors_total, error_type)",
+        "multi": true,
+        "includeAll": true
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "browser",
+  "title": "Mobile Application Metrics",
+  "uid": "mobile_metrics",
+  "version": 1,
+  "refresh": "30s",
+  "tags": ["mobile", "ios", "android", "monitoring", "performance", "user-engagement"],
+  "schemaVersion": 27,
+  "style": "dark",
+  "links": [],
+  "alerting": {
+    "alerts": [
+      {
+        "name": "LowSessionDuration",
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [15],
+              "type": "lt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": ["avg(mobile_session_duration_minutes{platform=~\"$platform\"}) by (platform)"]
+            },
+            "reducer": {
+              "type": "avg"
+            },
+            "type": "query"
+          }
+        ],
+        "frequency": "1h",
+        "handler": 1,
+        "notifications": [],
+        "message": "Average session duration below target of 15 minutes"
+      },
+      {
+        "name": "SlowGraphGeneration",
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [5],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": ["histogram_quantile(0.95, rate(graph_generation_duration_seconds_bucket{platform=~\"$platform\"}[5m]))"]
+            },
+            "reducer": {
+              "type": "avg"
+            },
+            "type": "query"
+          }
+        ],
+        "frequency": "5m",
+        "handler": 1,
+        "notifications": [],
+        "message": "Graph generation time exceeding 5 seconds threshold"
+      }
+    ]
+  }
+}
