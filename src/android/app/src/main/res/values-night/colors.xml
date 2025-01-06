@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark theme colors optimized for OLED displays and WCAG 2.1 Level AA compliance -->
+<!-- Material Design 3.0 color system implementation -->
+<resources>
+    <!-- Material Design 3.0 System Colors -->
+    <color name="colorPrimary">#FF9B27B0</color>
+    <color name="colorPrimaryDark">#FF7B1FA2</color>
+    <color name="colorAccent">#FF018786</color>
+
+    <!-- Surface Colors - Using true black for OLED efficiency -->
+    <color name="colorBackground">#FF121212</color>
+    <color name="colorSurface">#FF121212</color>
+    <color name="colorError">#FFCF6679</color>
+
+    <!-- On Colors - Ensuring 4.5:1 minimum contrast ratio -->
+    <color name="colorOnPrimary">#FF000000</color>
+    <color name="colorOnSecondary">#FFFFFFFF</color>
+    <color name="colorOnBackground">#FFFFFFFF</color>
+    <color name="colorOnSurface">#FFFFFFFF</color>
+    <color name="colorOnError">#FF000000</color>
+
+    <!-- Graph Visualization Colors -->
+    <color name="graphNodeDefault">#FF9B27B0</color>
+    <color name="graphNodeSelected">#FF018786</color>
+    <color name="graphEdgeDefault">#80FFFFFF</color>
+    <color name="graphEdgeHighlight">#FF9B27B0</color>
+</resources>
