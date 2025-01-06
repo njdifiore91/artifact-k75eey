@@ -1,0 +1,88 @@
+{
+  "common": {
+    "app_name": "アート知識グラフ",
+    "loading": "読み込み中です...",
+    "cancel": "キャンセルする",
+    "save": "保存する",
+    "delete": "削除する",
+    "edit": "編集する",
+    "close": "閉じる",
+    "back": "戻る",
+    "next": "次へ進む",
+    "done": "完了しました",
+    "honorific_suffix": "様",
+    "please_wait": "少々お待ちください"
+  },
+  "auth": {
+    "login": "ログインする",
+    "register": "新規登録",
+    "logout": "ログアウトする",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "forgot_password": "パスワードをお忘れですか？",
+    "reset_password": "パスワードを再設定する",
+    "password_requirements": "パスワードは8文字以上で、英数字を含める必要があります",
+    "login_success": "ログインが完了しました",
+    "register_success": "登録が完了しました"
+  },
+  "artwork": {
+    "upload": "作品をアップロードする",
+    "details": "作品の詳細",
+    "title": "作品名",
+    "artist": "作家名",
+    "year": "制作年",
+    "medium": "技法・素材",
+    "dimensions": "寸法",
+    "description": "作品説明",
+    "collection": "所蔵",
+    "period": "時代",
+    "style": "様式",
+    "technique": "技法"
+  },
+  "graph": {
+    "view": "グラフを表示",
+    "export": "グラフをエクスポート",
+    "zoom_in": "拡大する",
+    "zoom_out": "縮小する",
+    "reset_view": "表示をリセット",
+    "filter": "フィルター",
+    "legend": "凡例",
+    "node_types": "ノードの種類",
+    "edge_types": "エッジの種類",
+    "relationship_strength": "関連性の強さ",
+    "visualization_options": "表示オプション",
+    "layout_options": "レイアウト設定"
+  },
+  "search": {
+    "search": "検索",
+    "search_placeholder": "作品名や作家名を入力してください...",
+    "no_results": "検索結果が見つかりませんでした",
+    "filters": "検索条件",
+    "sort_by": "並び替え",
+    "results_count": "{{count}}件の結果が見つかりました",
+    "advanced_search": "詳細検索",
+    "search_history": "検索履歴",
+    "popular_searches": "人気の検索"
+  },
+  "profile": {
+    "settings": "設定",
+    "account": "アカウント",
+    "preferences": "環境設定",
+    "theme": "テーマ",
+    "language": "言語",
+    "notifications": "通知設定",
+    "privacy": "プライバシー設定",
+    "data_usage": "データ使用状況",
+    "account_security": "アカウントセキュリティ"
+  },
+  "errors": {
+    "generic_error": "エラーが発生しました",
+    "network_error": "ネットワークエラーが発生しました",
+    "auth_error": "認証エラーが発生しました", 
+    "validation_error": "入力内容に誤りがあります",
+    "not_found": "お探しのページが見つかりませんでした",
+    "permission_denied": "アクセス権限がありません",
+    "server_error": "サーバーエラーが発生しました",
+    "timeout_error": "接続がタイムアウトしました"
+  }
+}
