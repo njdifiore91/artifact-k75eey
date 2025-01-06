@@ -1,0 +1,232 @@
+name: Backend Build & Test
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/backend/**'
+      - '.github/workflows/backend-build.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/backend/**'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  POETRY_VERSION: "1.5.0"
+  DOCKER_BUILDKIT: "1"
+  TEST_COVERAGE_THRESHOLD: "90"
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/backend
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install dependencies
+        working-directory: src/backend
+        run: poetry install
+
+      - name: Run linting
+        working-directory: src/backend
+        run: |
+          poetry run black . --check
+          poetry run isort . --check
+          poetry run flake8 .
+          poetry run mypy .
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: src/backend
+          push: false
+          load: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-dist
+          path: src/backend/dist/
+          retention-days: 1
+
+  test:
+    name: Run Tests
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+      neo4j:
+        image: neo4j:5
+        env:
+          NEO4J_AUTH: neo4j/test
+        ports:
+          - 7687:7687
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-dist
+          path: src/backend/dist
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        working-directory: src/backend
+        run: poetry install
+
+      - name: Run tests
+        working-directory: src/backend
+        run: |
+          poetry run pytest \
+            --junitxml=test-results.xml \
+            --cov=art_knowledge_graph \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            -n auto
+
+      - name: Verify coverage threshold
+        working-directory: src/backend
+        run: |
+          COVERAGE=$(poetry run coverage report | grep TOTAL | awk '{print $4}' | sed 's/%//')
+          if (( $(echo "$COVERAGE < ${{ env.TEST_COVERAGE_THRESHOLD }}" | bc -l) )); then
+            echo "Test coverage ($COVERAGE%) is below threshold (${{ env.TEST_COVERAGE_THRESHOLD }}%)"
+            exit 1
+          fi
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: |
+            src/backend/test-results.xml
+            src/backend/coverage.xml
+          retention-days: 14
+
+  security:
+    name: Security Scan
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Snyk scan
+        uses: snyk/actions/python@v3
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          args: --file=src/backend/pyproject.toml --package-manager=poetry
+
+      - name: SonarQube scan
+        uses: sonarsource/sonarqube-scan-action@v1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.python.version=${{ env.PYTHON_VERSION }}
+            -Dsonar.python.coverage.reportPaths=src/backend/coverage.xml
+            -Dsonar.sources=src/backend/art_knowledge_graph
+            -Dsonar.tests=src/backend/tests
+
+      - name: Check dependencies
+        working-directory: src/backend
+        run: |
+          poetry run safety check
+          poetry run bandit -r art_knowledge_graph
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            src/backend/.snyk
+            src/backend/.scannerwork
+          retention-days: 14
+
+  notify:
+    name: Notify Status
+    needs: [build, test, security]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Check build status
+        if: ${{ needs.build.result != 'success' }}
+        run: exit 1
+
+      - name: Check test status
+        if: ${{ needs.test.result != 'success' }}
+        run: exit 1
+
+      - name: Check security status
+        if: ${{ needs.security.result != 'success' }}
+        run: exit 1
+
+      - name: Trigger deployment
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: backend-deploy
+          client-payload: '{"sha": "${{ github.sha }}"}'
