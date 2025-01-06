@@ -1,0 +1,130 @@
+{
+  "common": {
+    "app_name": "Grafo de Conocimiento del Arte",
+    "loading": "Cargando...",
+    "error": "Error",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "done": "Listo",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "menu": "Menú",
+    "settings": "Configuración",
+    "share": "Compartir",
+    "export": "Exportar",
+    "close": "Cerrar",
+    "view": "Ver",
+    "help": "Ayuda"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "logout": "Cerrar sesión",
+    "forgot_password": "¿Olvidaste tu contraseña?",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirm_password": "Confirmar contraseña",
+    "reset_password": "Restablecer contraseña",
+    "login_error": "Error al iniciar sesión",
+    "register_success": "Registro exitoso",
+    "welcome_message": "Bienvenido/a a {{app_name}}",
+    "account_settings": "Configuración de la cuenta",
+    "premium_features": "Características premium",
+    "subscription_status": "Estado de la suscripción"
+  },
+  "artwork": {
+    "upload": "Subir obra de arte",
+    "title": "Título",
+    "artist": {
+      "male": "Artista",
+      "female": "Artista",
+      "unknown": "Artista desconocido/a"
+    },
+    "year": "Año",
+    "medium": "Técnica",
+    "style": "Estilo",
+    "movement": "Movimiento artístico",
+    "dimensions": "Dimensiones",
+    "location": "Ubicación",
+    "upload_success": "Obra de arte subida exitosamente",
+    "upload_error": "Error al subir la obra de arte",
+    "metadata_fields": {
+      "technique": "Técnica utilizada",
+      "materials": "Materiales",
+      "support": "Soporte",
+      "period": "Período",
+      "school": "Escuela",
+      "conservation": "Estado de conservación"
+    },
+    "processing_status": {
+      "analyzing": "Analizando obra de arte...",
+      "generating_graph": "Generando grafo de conocimiento...",
+      "complete": "Procesamiento completado",
+      "failed": "Error en el procesamiento"
+    }
+  },
+  "graph": {
+    "zoom_in": "Acercar",
+    "zoom_out": "Alejar",
+    "reset_view": "Restablecer vista",
+    "export_graph": "Exportar grafo",
+    "share_graph": "Compartir grafo",
+    "node_details": "Detalles del nodo",
+    "edge_details": "Detalles de la conexión",
+    "filter_nodes": "Filtrar nodos",
+    "filter_edges": "Filtrar conexiones",
+    "layout_options": "Opciones de diseño",
+    "analysis_results": "Resultados del análisis",
+    "visualization_modes": {
+      "chronological": "Vista cronológica",
+      "influence": "Mapa de influencias",
+      "geographical": "Distribución geográfica",
+      "thematic": "Agrupación temática"
+    },
+    "interaction_help": {
+      "zoom": "Pellizcar para zoom",
+      "pan": "Arrastrar con dos dedos",
+      "select": "Tocar para seleccionar",
+      "details": "Mantener presionado para detalles"
+    }
+  },
+  "errors": {
+    "required_field": "Campo obligatorio",
+    "invalid_email": "Correo electrónico no válido",
+    "password_mismatch": "Las contraseñas no coinciden",
+    "network_error": "Error de conexión",
+    "upload_failed": "Error al subir el archivo",
+    "processing_failed": "Error en el procesamiento",
+    "invalid_file_type": "Tipo de archivo no válido",
+    "validation": {
+      "required": "Este campo es obligatorio",
+      "min_length": "Mínimo {{count}} caracteres",
+      "max_length": "Máximo {{count}} caracteres",
+      "invalid_format": "Formato no válido",
+      "future_date": "La fecha no puede ser futura",
+      "file_size": "El archivo excede el tamaño máximo"
+    }
+  },
+  "formats": {
+    "date": {
+      "short": "DD/MM/YYYY",
+      "long": "D [de] MMMM [de] YYYY",
+      "time": "HH:mm",
+      "datetime": "DD/MM/YYYY HH:mm"
+    },
+    "number": {
+      "decimal_separator": ",",
+      "thousand_separator": ".",
+      "currency": {
+        "symbol": "€",
+        "position": "suffix"
+      }
+    }
+  }
+}
