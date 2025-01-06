@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Application name -->
+    <string name="app_name">Art Knowledge Graph</string>
+
+    <!-- Navigation menu labels -->
+    <string name="nav_home">Home</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_upload">Upload</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Error messages -->
+    <string name="error_no_internet">No internet connection available. Please check your connection and try again.</string>
+    <string name="error_camera_permission">Camera permission is required to capture artwork images.</string>
+    <string name="error_storage_permission">Storage permission is required to save artwork images.</string>
+    <string name="error_biometric_not_available">Biometric authentication is not available on this device.</string>
+    <string name="error_graph_generation">Failed to generate knowledge graph. Please try again.</string>
+    <string name="error_upload_failed">Failed to upload artwork. Please check your connection and try again.</string>
+
+    <!-- Button labels -->
+    <string name="btn_upload">Upload Artwork</string>
+    <string name="btn_capture">Capture Image</string>
+    <string name="btn_generate_graph">Generate Graph</string>
+    <string name="btn_export">Export</string>
+    <string name="btn_share">Share</string>
+    <string name="btn_filter">Filter</string>
+    <string name="btn_reset">Reset</string>
+
+    <!-- Dialog messages -->
+    <string name="dialog_processing_artwork">Processing artwork…</string>
+    <string name="dialog_generating_graph">Generating knowledge graph…</string>
+    <string name="dialog_exporting">Preparing export…</string>
+    <string name="dialog_share_title">Share Knowledge Graph</string>
+    <string name="dialog_filter_title">Filter Graph</string>
+
+    <!-- Accessibility labels -->
+    <string name="accessibility_upload_button">Upload new artwork image</string>
+    <string name="accessibility_camera_button">Take photo of artwork</string>
+    <string name="accessibility_graph_node">%1$s node. Double tap to view details.</string>
+    <string name="accessibility_filter_button">Filter graph nodes and connections</string>
+    <string name="accessibility_share_button">Share knowledge graph</string>
+    <string name="accessibility_navigation_drawer">Navigation menu</string>
+
+    <!-- Graph labels -->
+    <string name="graph_node_artist">Artist</string>
+    <string name="graph_node_artwork">Artwork</string>
+    <string name="graph_node_movement">Art Movement</string>
+    <string name="graph_node_period">Time Period</string>
+    <string name="graph_edge_influenced_by">Influenced by</string>
+
+    <!-- Progress indicators -->
+    <string name="progress_uploading">Uploading artwork (%1$d%%)</string>
+    <string name="progress_analyzing">Analyzing artwork details</string>
+    <string name="progress_connecting">Establishing connections</string>
+
+    <!-- Search related -->
+    <string name="search_hint">Search artworks, artists, or movements</string>
+    <string name="search_no_results">No results found</string>
+    <string name="search_error">Search failed. Please try again.</string>
+
+    <!-- Upload form labels -->
+    <string name="upload_title_label">Artwork Title</string>
+    <string name="upload_artist_label">Artist Name</string>
+    <string name="upload_year_label">Year Created</string>
+    <string name="upload_medium_label">Medium</string>
+    <string name="upload_description_label">Description</string>
+
+    <!-- Filter options -->
+    <string name="filter_time_period">Time Period</string>
+    <string name="filter_movement">Art Movement</string>
+    <string name="filter_medium">Medium</string>
+    <string name="filter_connections">Connections</string>
+    <string name="filter_apply">Apply Filters</string>
+    <string name="filter_clear">Clear Filters</string>
+
+    <!-- Export options -->
+    <string name="export_format_image">Image (PNG)</string>
+    <string name="export_format_pdf">Document (PDF)</string>
+    <string name="export_format_url">Shareable Link</string>
+    <string name="export_quality_label">Export Quality</string>
+    <string name="export_include_metadata">Include Metadata</string>
+    <string name="export_include_annotations">Include Annotations</string>
+
+    <!-- Confirmation messages -->
+    <string name="confirm_delete">Are you sure you want to delete this item?</string>
+    <string name="confirm_discard">Discard changes?</string>
+    <string name="confirm_exit">Exit without saving?</string>
+
+    <!-- Success messages -->
+    <string name="success_upload">Artwork uploaded successfully</string>
+    <string name="success_graph">Knowledge graph generated successfully</string>
+    <string name="success_export">Export completed successfully</string>
+    <string name="success_share">Graph shared successfully</string>
+</resources>
