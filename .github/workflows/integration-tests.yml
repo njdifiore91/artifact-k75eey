@@ -1,0 +1,173 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/backend/**'
+      - 'src/web/**'
+      - 'tests/**'
+      - '.github/workflows/integration-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/backend/**'
+      - 'src/web/**'
+      - 'tests/**'
+      - '.github/workflows/integration-tests.yml'
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18.x'
+  ENVIRONMENT: 'test'
+  LOG_LEVEL: 'debug'
+  PYTHONPATH: 'src/backend'
+  PYTEST_ADDOPTS: '--verbose --capture=no --log-cli-level=INFO --junit-xml=test-results.xml --cov=src/backend --cov-report=xml'
+  TEST_TIMEOUT: '600'
+  SECURITY_SCAN_LEVEL: 'HIGH'
+  PARALLEL_TESTS: '4'
+
+jobs:
+  integration_tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    environment: test
+    timeout-minutes: 30
+    
+    strategy:
+      matrix:
+        test-group: [api, graph, auth, data]
+      fail-fast: true
+      max-parallel: 4
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: art_knowledge_graph_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --security-opt=no-new-privileges:true
+
+      neo4j:
+        image: neo4j:5.0
+        env:
+          NEO4J_AUTH: ${{ secrets.NEO4J_USER }}/${{ secrets.NEO4J_PASSWORD }}
+          NEO4J_SECURITY_PROCEDURES_UNRESTRICTED: 'none'
+        ports:
+          - 7687:7687
+        options: >-
+          --health-cmd "neo4j status"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --security-opt=no-new-privileges:true
+
+      redis:
+        image: redis:7.0
+        env:
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --security-opt=no-new-privileges:true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/backend/requirements.txt
+          pip install pytest-xdist pytest-timeout pytest-cov
+
+      - name: Run security scans
+        uses: aquasecurity/trivy-action@v0.10.0
+        with:
+          scan-type: 'fs'
+          security-checks: 'vuln,config,secret'
+          severity: ${{ env.SECURITY_SCAN_LEVEL }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Run dependency security scan
+        uses: snyk/actions/python@v1
+        with:
+          args: --severity-threshold=${{ env.SECURITY_SCAN_LEVEL }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Start test services
+        run: |
+          docker-compose -f src/backend/docker-compose.yml up -d
+          sleep 30  # Wait for services to be ready
+
+      - name: Run database migrations
+        run: |
+          python src/backend/manage.py db upgrade
+        env:
+          DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/art_knowledge_graph_test
+
+      - name: Run integration tests
+        run: |
+          pytest tests/${{ matrix.test-group }} \
+            -n ${{ env.PARALLEL_TESTS }} \
+            --timeout=${{ env.TEST_TIMEOUT }} \
+            --dist=loadfile
+        env:
+          NEO4J_URI: bolt://localhost:7687
+          POSTGRES_URI: postgresql://localhost:5432/art_knowledge_graph_test
+          REDIS_URI: redis://localhost:6379
+          NEO4J_USER: ${{ secrets.NEO4J_USER }}
+          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.test-group }}
+          path: |
+            test-results.xml
+            coverage.xml
+            trivy-results.sarif
+
+      - name: Cleanup test environment
+        if: always()
+        run: docker-compose -f src/backend/docker-compose.yml down -v
+
+    concurrency:
+      group: integration-tests-${{ github.ref }}
+      cancel-in-progress: true
