@@ -1,0 +1,327 @@
+openapi: 3.1.0
+info:
+  title: Art Knowledge Graph Service API
+  version: v1
+  description: Enterprise-grade API for generating and managing art knowledge graphs with enhanced performance monitoring, security, and caching features
+
+servers:
+  - url: /api/v1/graph
+    description: Graph Service API endpoint
+
+components:
+  schemas:
+    Node:
+      type: object
+      required:
+        - uuid
+        - type
+        - label
+        - properties
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unique identifier for the node
+        type:
+          type: string
+          enum: ['ARTWORK', 'ARTIST', 'MOVEMENT', 'TECHNIQUE', 'PERIOD', 'LOCATION', 'MATERIAL']
+          description: Type of the node
+        label:
+          type: string
+          description: Human-readable label for the node
+        properties:
+          type: object
+          description: Node properties with validation rules
+        created_at:
+          type: string
+          format: date-time
+          description: UTC timestamp of node creation
+        updated_at:
+          type: string
+          format: date-time
+          description: UTC timestamp of last update
+        version:
+          type: integer
+          description: Node version for concurrency control
+
+    Relationship:
+      type: object
+      required:
+        - uuid
+        - type
+        - source_node
+        - target_node
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unique identifier for the relationship
+        type:
+          type: string
+          enum: ['CREATED_BY', 'BELONGS_TO', 'INFLUENCED_BY', 'LOCATED_IN', 'USES_TECHNIQUE', 'MADE_WITH', 'CONTEMPORARY_OF', 'STUDIED_UNDER']
+          description: Type of relationship
+        source_node:
+          type: string
+          format: uuid
+          description: UUID of source node
+        target_node:
+          type: string
+          format: uuid
+          description: UUID of target node
+        properties:
+          type: object
+          description: Relationship properties with validation
+        created_at:
+          type: string
+          format: date-time
+          description: UTC timestamp of creation
+        version:
+          type: integer
+          description: Version for concurrency control
+
+    GraphResponse:
+      type: object
+      required:
+        - nodes
+        - relationships
+        - metrics
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Node'
+        relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
+        metrics:
+          type: object
+          properties:
+            generation_time:
+              type: number
+              format: float
+              description: Graph generation time in seconds
+            node_count:
+              type: integer
+              description: Total number of nodes
+            relationship_count:
+              type: integer
+              description: Total number of relationships
+            cache_status:
+              type: string
+              enum: ['hit', 'miss']
+              description: Cache hit/miss status
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        details:
+          type: object
+          description: Additional error details
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+  parameters:
+    ArtworkId:
+      name: artwork_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Unique identifier of the artwork
+
+paths:
+  /generate/{artwork_id}:
+    post:
+      summary: Generate knowledge graph for artwork
+      description: Generates a new knowledge graph centered around an artwork with enhanced performance monitoring
+      operationId: generateArtworkGraph
+      tags:
+        - Graph Generation
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ArtworkId'
+        - name: depth
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+            default: 2
+          description: Depth of graph traversal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                options:
+                  type: object
+                  properties:
+                    include_metadata:
+                      type: boolean
+                      default: true
+                    relationship_types:
+                      type: array
+                      items:
+                        type: string
+                        enum: ['CREATED_BY', 'BELONGS_TO', 'INFLUENCED_BY']
+      responses:
+        '200':
+          description: Successfully generated graph
+          headers:
+            X-Generation-Time:
+              schema:
+                type: number
+                format: float
+              description: Graph generation time in seconds
+            X-Cache-Status:
+              schema:
+                type: string
+                enum: ['hit', 'miss']
+              description: Cache status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '400':
+          description: Invalid input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Missing or invalid authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests - Rate limit exceeded
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Rate limit ceiling
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Remaining requests
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Rate limit reset time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /expand/{graph_id}:
+    post:
+      summary: Expand existing knowledge graph
+      description: Expands an existing graph with additional nodes and relationships
+      operationId: expandGraph
+      tags:
+        - Graph Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: graph_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier of the graph
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - expansion_type
+              properties:
+                expansion_type:
+                  type: string
+                  enum: ['ARTWORK', 'ARTIST', 'MOVEMENT', 'TECHNIQUE']
+                options:
+                  type: object
+                  properties:
+                    max_nodes:
+                      type: integer
+                      default: 50
+                    include_metadata:
+                      type: boolean
+                      default: true
+      responses:
+        '200':
+          description: Successfully expanded graph
+          headers:
+            X-Processing-Time:
+              schema:
+                type: number
+                format: float
+              description: Processing time in seconds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '404':
+          description: Graph not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /health:
+    get:
+      summary: Graph service health check
+      description: Returns health status of the graph service
+      operationId: checkHealth
+      tags:
+        - Monitoring
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: ['healthy', 'degraded']
+                  metrics:
+                    type: object
+                    properties:
+                      cache_hit_rate:
+                        type: number
+                        format: float
+                      avg_generation_time:
+                        type: number
+                        format: float
+                      active_connections:
+                        type: integer
