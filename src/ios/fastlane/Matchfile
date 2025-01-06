@@ -1,0 +1,50 @@
+# fastlane-match 2.217.0
+
+# Git repository URL containing certificates and profiles
+git_url("git@github.com:artknowledgegraph/certificates.git")
+
+# Use git storage mode for enhanced security and version control
+storage_mode("git")
+
+# Default to development type certificates
+type("development")
+
+# Enable readonly mode to prevent unauthorized modifications during CI/CD
+readonly(true)
+
+# App bundle identifiers that need code signing
+app_identifier(["com.artknowledgegraph.app"])
+
+# Apple Developer account email
+username("developer@artknowledgegraph.com")
+
+# Apple Developer Team identifier
+team_id("ARTKG12345")
+
+# Git branch containing certificates
+git_branch("main")
+
+# Specify iOS platform for certificate management
+platform("ios")
+
+# Force match to only run on CI
+force_for_new_devices(false)
+
+# Require user confirmation for certificate generation
+shallow_clone(true)
+
+# Skip confirmation on CI systems
+skip_confirmation(true)
+
+# Enable verbose output for debugging
+verbose(true)
+
+# Template name for provisioning profiles
+template_name("Art Knowledge Graph iOS App")
+
+# Additional security settings
+git_basic_authorization(ENV["MATCH_GIT_BASIC_AUTHORIZATION"])
+keychain_password(ENV["MATCH_KEYCHAIN_PASSWORD"])
+
+# Certificate validity settings
+api_key_path(ENV["APP_STORE_CONNECT_API_KEY_PATH"])
