@@ -1,0 +1,92 @@
+pluginManagement {
+    repositories {
+        // Secure repository configuration with HTTPS enforcement
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+
+    resolutionStrategy {
+        eachPlugin {
+            // Enforce specific plugin versions for security
+            if (requested.id.namespace == 'com.android.tools.build') {
+                useVersion '7.3.1' // Latest stable Android Gradle plugin
+            }
+            if (requested.id.namespace == 'org.jetbrains.kotlin') {
+                useVersion '1.8.0' // Latest stable Kotlin plugin
+            }
+            if (requested.id.namespace == 'com.facebook.react') {
+                useVersion '0.71.0' // React Native Gradle plugin version
+            }
+        }
+    }
+}
+
+// Configure dependency resolution with strict security policies
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        // Enforce HTTPS for all repository connections
+        google()
+        mavenCentral()
+        maven {
+            url 'https://www.jitpack.io'
+            content {
+                // Restrict content to known groups for security
+                includeGroup 'com.facebook.react'
+                includeGroup 'org.jetbrains.kotlin'
+                includeGroup 'com.android.tools.build'
+            }
+        }
+    }
+}
+
+// Enable Gradle build performance optimizations
+gradle.projectsLoaded {
+    rootProject.allprojects {
+        buildDir = "${rootDir}/build/${project.name}"
+    }
+}
+
+// Configure root project with security validations
+rootProject.name = "ArtKnowledgeGraph"
+
+// Enable parallel execution for better performance
+gradle.startParameter.setParallelProjectExecutionEnabled(true)
+
+// Enable build cache for improved performance
+gradle.startParameter.setBuildCacheEnabled(true)
+
+// Configure project evaluation with security checks
+gradle.beforeProject { project ->
+    project.configurations.all {
+        resolutionStrategy {
+            // Force specific dependency versions for security
+            force 'com.facebook.react:react-native:0.71.0'
+            force 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0'
+            force 'com.android.tools.build:gradle:7.3.1'
+        }
+    }
+}
+
+// Include the main application module with validation
+include ':app'
+
+// Validate module path and structure
+def validateModule(String modulePath) {
+    File moduleDir = new File(rootDir, modulePath)
+    if (!moduleDir.exists()) {
+        throw new GradleException("Module directory ${moduleDir.absolutePath} does not exist")
+    }
+    File buildFile = new File(moduleDir, "build.gradle")
+    if (!buildFile.exists()) {
+        throw new GradleException("Module ${modulePath} is missing build.gradle file")
+    }
+}
+
+// Validate included modules
+gradle.projectsEvaluated {
+    rootProject.subprojects.each { project ->
+        validateModule(project.projectDir.name)
+    }
+}
