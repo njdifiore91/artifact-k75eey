@@ -1,0 +1,114 @@
+[build-system]
+requires = ["poetry-core>=1.5.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "art-knowledge-graph-backend"
+version = "1.0.0"
+description = "Backend services for Art Knowledge Graph mobile application providing graph generation, art analysis, and data processing capabilities"
+authors = ["Art Knowledge Graph Team <team@artknowledgegraph.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "art_knowledge_graph"}]
+python = "^3.11"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.100.0"  # High-performance web framework
+uvicorn = "^0.23.0"  # ASGI server implementation
+sqlalchemy = "^2.0.0"  # SQL toolkit and ORM
+pydantic = "^2.0.0"  # Data validation using Python type annotations
+neo4j = "^5.0.0"  # Neo4j database driver
+redis = "^4.5.0"  # Redis client library
+pillow = "^10.0.0"  # Python Imaging Library
+pandas = "^2.0.0"  # Data analysis library
+numpy = "^1.24.0"  # Scientific computing library
+aiohttp = "^3.8.0"  # Async HTTP client/server
+python-multipart = "^0.0.6"  # Multipart form parser
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}  # JWT token handling
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}  # Password hashing
+boto3 = "^1.28.0"  # AWS SDK
+sentry-sdk = "^1.28.0"  # Error tracking
+prometheus-client = "^0.17.0"  # Metrics collection
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0.0"  # Testing framework
+pytest-cov = "^4.1.0"  # Coverage reporting
+pytest-asyncio = "^0.21.0"  # Async test support
+black = "^23.7.0"  # Code formatter
+mypy = "^1.4.0"  # Static type checker
+isort = "^5.12.0"  # Import sorter
+flake8 = "^6.0.0"  # Style guide enforcement
+bandit = "^1.7.0"  # Security linter
+safety = "^2.3.0"  # Dependency security checker
+pre-commit = "^3.3.0"  # Git hooks manager
+docker = "^6.1.0"  # Docker SDK for testing
+
+[tool.poetry.scripts]
+start = "art_knowledge_graph.main:start"
+dev = "art_knowledge_graph.main:dev"
+test = "pytest"
+lint = "pre-commit run --all-files"
+
+[tool.pytest]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+addopts = "--verbose --cov=art_knowledge_graph --cov-report=term-missing --cov-report=xml"
+asyncio_mode = "auto"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+# Exclude files or directories matching these patterns
+/(
+    \.eggs
+  | \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+targets = ["art_knowledge_graph"]
+skips = ["B311"]  # Skip random number warning
+
+[tool.coverage.run]
+source = ["art_knowledge_graph"]
+omit = ["tests/*", "**/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise ImportError",
+]
