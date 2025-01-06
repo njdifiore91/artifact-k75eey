@@ -1,0 +1,154 @@
+name: Android Build and Security Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/android/**'
+      - '.github/workflows/android-build.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/android/**'
+      - '.github/workflows/android-build.yml'
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '17'
+  GRADLE_VERSION: '7.3.3'
+  ANDROID_MIN_SDK: '26'
+  KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+  KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+  CACHE_KEY: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+  BUILD_CACHE_ENABLED: 'true'
+  SECURITY_SCAN_LEVEL: 'high'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+          cache-read-only: false
+          cache-write-only: ${{ github.ref != 'refs/heads/main' }}
+          arguments: --build-cache --parallel
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x src/android/gradlew
+
+      - name: Run dependency vulnerability scan
+        uses: actions/dependency-review-action@v3
+        with:
+          fail-on-severity: high
+
+      - name: Run static code analysis
+        working-directory: src/android
+        run: ./gradlew lint
+
+      - name: Run unit tests with coverage
+        working-directory: src/android
+        run: |
+          ./gradlew test jacocoTestReport --parallel
+          ./gradlew app:testDebugUnitTest
+
+      - name: Run security lint checks
+        working-directory: src/android
+        run: ./gradlew app:lintDebug
+
+      - name: Build debug APK
+        working-directory: src/android
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Build and sign release APK
+        working-directory: src/android
+        if: github.ref == 'refs/heads/main'
+        env:
+          SIGNING_KEY_BASE64: ${{ secrets.ANDROID_SIGNING_KEY }}
+        run: |
+          echo "$SIGNING_KEY_BASE64" | base64 -d > keystore/release.keystore
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=keystore/release.keystore \
+            -Pandroid.injected.signing.store.password=${{ env.KEYSTORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=art-knowledge-graph \
+            -Pandroid.injected.signing.key.password=${{ env.KEY_PASSWORD }}
+
+      - name: Verify APK signatures
+        working-directory: src/android
+        run: |
+          ./gradlew validateSigningDebug
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            ./gradlew validateSigningRelease
+          fi
+
+      - name: Generate build reports
+        working-directory: src/android
+        if: always()
+        run: |
+          ./gradlew app:androidDependencies
+          ./gradlew app:dependencies > build/dependencies.txt
+          ./gradlew app:signingReport > build/signing-report.txt
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-debug
+          path: src/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+
+      - name: Upload release APK
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release
+          path: src/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 14
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            src/android/app/build/reports/tests/
+            src/android/app/build/reports/jacoco/
+            src/android/app/build/reports/lint-results-debug.html
+          retention-days: 14
+
+      - name: Upload build reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-reports
+          path: |
+            src/android/build/dependencies.txt
+            src/android/build/signing-report.txt
+          retention-days: 14
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Android build failed. Check the logs for details."
