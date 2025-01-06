@@ -1,0 +1,32 @@
+[Binary PNG Image File with the following specifications]
+
+Image Dimensions:
+- Width: 432px (144dp * 3.0 scale factor)
+- Height: 432px (144dp * 3.0 scale factor)
+- Safe zone: 336px x 336px (112dp x 112dp with 16dp inset)
+
+Format Specifications:
+- File format: PNG
+- Color space: sRGB
+- Bit depth: 32-bit with alpha channel
+- Compression: Lossless PNG optimization
+- Interlacing: Disabled
+- Maximum file size: 32KB
+
+Design Requirements:
+- Style: Material Design 3.0 compliant
+- Background: Gradient treatment
+- Corners: Rounded corners
+- Shadow: Minimal shadow treatment
+- Accessibility: 4.5:1 minimum contrast ratio
+- Color blind friendly design
+- Clear silhouette for recognition
+
+Compatibility:
+- Minimum SDK: 21
+- Target SDK: 33
+- Density qualifier: xxhdpi
+- Adaptive icon support with 1.5x foreground scale
+- Compatible with major launcher shapes: circular, square, rounded_square, squircle
+
+The image should represent the Art Knowledge Graph application concept while maintaining platform guidelines and technical specifications.
