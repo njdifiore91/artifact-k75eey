@@ -1,0 +1,145 @@
+# General
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+
+# Environment Files
+.env
+.env.*
+*.env.local
+*.env.development
+*.env.staging
+*.env.production
+
+# IDE and Editor Files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+*.iml
+
+# Build and Distribution
+dist/
+build/
+out/
+target/
+*.class
+*.jar
+*.war
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+log/
+
+# Testing
+coverage/
+.nyc_output/
+junit/
+test-results/
+*.lcov
+
+# Mobile Specific
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+*.cer
+*.certSigningRequest
+*.dSYM.zip
+*.ipa
+*.apk
+*.aab
+
+# Infrastructure
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+terraform.tfvars
+.terraformrc
+*.plan
+
+# Secrets
+*.pem
+*.key
+*.crt
+secrets.yaml
+secrets.yml
+*secret*
+*credential*
+.pgpass
+
+# Dependencies
+node_modules/
+vendor/
+yarn.lock
+package-lock.json
+poetry.lock
+Gemfile.lock
+composer.lock
+
+# Cache
+.cache/
+.npm/
+.yarn/
+.pub-cache/
+.gradle/
+.maven/
+*.cache
+
+# Platform Specific
+## iOS
+xcuserdata/
+*.xcworkspace
+*.pbxuser
+*.mode1v3
+*.perspectivev3
+DerivedData/
+Pods/
+
+## Android
+local.properties
+.gradle/
+captures/
+.externalNativeBuild/
+.cxx/
+*.hprof
+
+## Backend
+__pycache__/
+*.py[cod]
+*.so
+.Python
+env/
+venv/
+.env/
+.venv/
+pip-log.txt
+celerybeat-schedule
+.pytest_cache/
+
+# Documentation and Reports
+docs/_build/
+site/
+reports/
+*.pdf
+*.docx
+
+# Miscellaneous
+.history/
+.git/
+*.bak
+*.orig
+*.rej
+*.old
+.*.sw[a-p]
