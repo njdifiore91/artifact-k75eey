@@ -1,0 +1,74 @@
+# Prometheus recording rules for Art Knowledge Graph application monitoring
+# Version: 1.0
+# Prometheus version: 2.40+
+
+# Global settings aligned with prometheus.yml
+# evaluation_interval: 15s
+# scrape_interval: 15s
+
+groups:
+  # API Gateway performance metrics
+  - name: api_metrics
+    rules:
+      # Error rate over 5m window
+      - record: api:error_rate:5m
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))
+        labels:
+          service: api_gateway
+
+      # 95th percentile latency over 5m window
+      - record: api:latency:p95:5m
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))
+        labels:
+          service: api_gateway
+
+      # Request rate by service and endpoint over 5m window
+      - record: api:requests:rate:5m
+        expr: sum(rate(http_requests_total[5m])) by (service, endpoint)
+        labels:
+          service: api_gateway
+
+  # Graph service performance metrics
+  - name: graph_metrics
+    rules:
+      # Average graph processing time over 5m window
+      - record: graph:processing_time:avg:5m
+        expr: avg_over_time(graph_processing_duration_seconds[5m])
+        labels:
+          service: graph_service
+
+      # 95th percentile query time over 5m window
+      - record: graph:query_time:p95:5m
+        expr: histogram_quantile(0.95, sum(rate(graph_query_duration_seconds_bucket[5m])) by (le))
+        labels:
+          service: graph_service
+
+  # Container resource utilization metrics
+  - name: resource_metrics
+    rules:
+      # Average CPU usage by service over 5m window
+      - record: container:cpu_usage:avg:5m
+        expr: avg_over_time(container_cpu_usage_seconds_total[5m]) / container_cpu_cores
+        labels:
+          service: $service
+
+      # Average memory usage by service over 5m window
+      - record: container:memory_usage:avg:5m
+        expr: avg_over_time(container_memory_usage_bytes[5m]) / container_memory_limit_bytes
+        labels:
+          service: $service
+
+  # Database performance metrics
+  - name: database_metrics
+    rules:
+      # Average connection count over 5m window
+      - record: database:connections:avg:5m
+        expr: avg_over_time(database_connections[5m])
+        labels:
+          database: $database
+
+      # 95th percentile query latency over 5m window
+      - record: database:latency:p95:5m
+        expr: histogram_quantile(0.95, sum(rate(database_query_duration_seconds_bucket[5m])) by (le))
+        labels:
+          database: $database
