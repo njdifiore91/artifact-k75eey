@@ -1,0 +1,25 @@
+Format: PNG (Portable Network Graphics)
+Dimensions: 96x96 pixels
+Density: xhdpi (approximately 320dpi)
+Scale factor: 2.0x
+Color space: sRGB
+Color depth: 32-bit with alpha channel
+Compression: Lossless PNG compression
+Optimization: Size-optimized while maintaining quality
+Background: Transparent
+
+Visual Requirements:
+- Shape: Circular/round icon
+- Padding: Standard Material Design icon padding
+- Anti-aliasing: Required for smooth edges
+- Shadow: None (handled by launcher)
+- Quality: Pixel-perfect rendering optimized for xhdpi
+
+Android Compatibility:
+- Minimum SDK: 21 (Android 5.0)
+- Target: xhdpi devices (~320dpi)
+- Purpose: Round launcher icon for devices without adaptive icon support
+- Launcher compatibility: Stock Android and OEM launchers
+- Theme support: Both light and dark themes
+
+The image should be created following Material Design guidelines for launcher icons and exported as a PNG file at the specified location.
