@@ -1,0 +1,149 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environment
+venv/
+env/
+.Python
+bin/
+include/
+lib/
+lib64/
+share/
+
+# Distribution/Packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+*.egg-info/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+
+# Testing
+.coverage
+coverage.xml
+.pytest_cache/
+htmlcov/
+.tox/
+nosetests.xml
+coverage/
+.hypothesis/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Logs
+*.log
+logs/
+log/
+
+# Local Development
+.python-version
+poetry.lock
+.local/
+
+# Docker
+.docker/
+docker-compose.override.yml
+*.env.docker
+
+# OS
+.DS_Store
+Thumbs.db
+*.db
+desktop.ini
+ehthumbs.db
+Icon?
+
+# Temporary
+*~
+*.bak
+*.swp
+*.tmp
+.*.sw?
+tmp/
+
+# Security
+*.pem
+*.key
+*.crt
+*.csr
+*.srl
+*.p12
+*.pfx
+.secrets/
+credentials/
+
+# Dependencies
+node_modules/
+jspm_packages/
+bower_components/
+
+# Cache
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Generated files
+*.generated.*
+generated/
+auto-generated/
+
+# Profiling
+*.prof
+profile/
+.prof/
+
+# Documentation
+docs/_build/
+site/
+
+# Media
+media/
+uploads/
+*.mp4
+*.mov
+*.avi
+*.wmv
+
+# Backup
+backup/
+*.backup
+*.bak
+*.old
+*.orig
+
+# Misc
+.sass-cache/
+.grunt/
+.npm/
+.eslintcache
+.stylelintcache
+.node_repl_history
