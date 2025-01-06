@@ -1,0 +1,69 @@
+{
+  "name": "ArtKnowledgeGraph",
+  "displayName": "Art Knowledge Graph",
+  "version": "1.0.0",
+  "orientation": "portrait",
+  "icon": "./src/assets/images/icon.png",
+  "splash": {
+    "image": "./src/assets/images/splash.png",
+    "resizeMode": "contain",
+    "backgroundColor": "#ffffff"
+  },
+  "platforms": [
+    "ios",
+    "android"
+  ],
+  "ios": {
+    "bundleIdentifier": "com.artknowledgegraph.app",
+    "buildNumber": "1",
+    "supportsTablet": true,
+    "requireFullScreen": true,
+    "infoPlist": {
+      "NSCameraUsageDescription": "This app needs access to camera for artwork scanning",
+      "NSPhotoLibraryUsageDescription": "This app needs access to photos for artwork uploads",
+      "NSFaceIDUsageDescription": "This app uses Face ID for secure authentication",
+      "UIRequiresFullScreen": true,
+      "UILaunchStoryboardName": "LaunchScreen",
+      "UIViewControllerBasedStatusBarAppearance": false,
+      "LSRequiresIPhoneOS": true,
+      "ITSAppUsesNonExemptEncryption": false,
+      "UIBackgroundModes": [
+        "fetch"
+      ]
+    },
+    "config": {
+      "usesNonExemptEncryption": false
+    },
+    "minVersion": "14.0"
+  },
+  "android": {
+    "package": "com.artknowledgegraph.app",
+    "versionCode": 1,
+    "adaptiveIcon": {
+      "foregroundImage": "./src/assets/images/adaptive-icon.png",
+      "backgroundColor": "#ffffff"
+    },
+    "permissions": [
+      "CAMERA",
+      "READ_EXTERNAL_STORAGE", 
+      "WRITE_EXTERNAL_STORAGE",
+      "USE_BIOMETRIC",
+      "USE_FINGERPRINT",
+      "INTERNET",
+      "ACCESS_NETWORK_STATE"
+    ],
+    "minSdkVersion": 26,
+    "targetSdkVersion": 33
+  },
+  "updates": {
+    "enabled": true,
+    "checkAutomatically": "ON_LOAD",
+    "fallbackToCacheTimeout": 30000
+  },
+  "assetBundlePatterns": [
+    "**/*"
+  ],
+  "web": {
+    "favicon": "./src/assets/images/favicon.png"
+  }
+}
