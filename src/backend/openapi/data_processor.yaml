@@ -1,0 +1,341 @@
+openapi: "3.0.3"
+info:
+  title: "Art Knowledge Graph Data Processor API"
+  version: "v1"
+  description: "Secure API for artwork metadata processing, integration with external art databases, and knowledge graph data generation"
+  contact:
+    name: "Art Knowledge Graph Team"
+    email: "support@artknowledgegraph.com"
+
+servers:
+  - url: "/api/v1"
+    description: "Data Processor API endpoint"
+
+components:
+  schemas:
+    ArtworkMetadata:
+      type: object
+      required:
+        - artwork_id
+        - title
+        - artist
+        - validation_status
+      properties:
+        artwork_id:
+          type: string
+          description: "Unique identifier for the artwork"
+        title:
+          type: string
+          description: "Artwork title"
+        artist:
+          type: string
+          description: "Artist name"
+        year:
+          type: string
+          description: "Year of creation"
+        medium:
+          type: string
+          description: "Artwork medium"
+        style:
+          type: string
+          description: "Artistic style"
+        period:
+          type: string
+          description: "Historical period"
+        validation_status:
+          type: string
+          enum: ["pending", "validated", "failed"]
+        confidence_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        metadata_sources:
+          type: array
+          items:
+            type: string
+            enum: ["getty", "wikidata", "google_arts"]
+
+    ArtworkAnalysis:
+      type: object
+      required:
+        - artwork_id
+        - style_classification
+        - analysis_confidence
+      properties:
+        artwork_id:
+          type: string
+        style_classification:
+          type: object
+          properties:
+            primary_style:
+              type: string
+            confidence:
+              type: number
+              format: float
+        visual_elements:
+          type: array
+          items:
+            type: object
+            properties:
+              element:
+                type: string
+              confidence:
+                type: number
+        cultural_context:
+          type: object
+          properties:
+            period:
+              type: string
+            movement:
+              type: string
+            influences:
+              type: array
+              items:
+                type: string
+        analysis_confidence:
+          type: number
+          format: float
+        processing_metadata:
+          type: object
+          properties:
+            processing_time:
+              type: number
+            processor_version:
+              type: string
+
+    ArtworkRelationships:
+      type: object
+      required:
+        - artwork_id
+        - related_works
+        - relationship_confidence
+      properties:
+        artwork_id:
+          type: string
+        related_works:
+          type: array
+          items:
+            type: object
+            properties:
+              artwork_id:
+                type: string
+              relationship_type:
+                type: string
+              confidence:
+                type: number
+        influences:
+          type: array
+          items:
+            type: object
+            properties:
+              source:
+                type: string
+              type:
+                type: string
+              strength:
+                type: number
+        historical_context:
+          type: object
+          properties:
+            period:
+              type: string
+            events:
+              type: array
+              items:
+                type: string
+        relationship_confidence:
+          type: number
+          format: float
+        source_verification:
+          type: object
+          properties:
+            verified_sources:
+              type: array
+              items:
+                type: string
+            verification_date:
+              type: string
+              format: date-time
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: "API key authentication"
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT token authentication"
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token
+          scopes:
+            read:artwork: "Read artwork data"
+            write:artwork: "Modify artwork data"
+
+paths:
+  /artwork/metadata:
+    post:
+      summary: "Process and extract artwork metadata"
+      description: "Securely processes artwork metadata from multiple sources with validation"
+      operationId: processArtworkMetadata
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      tags:
+        - Metadata Processing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - artwork_id
+                - image_url
+              properties:
+                artwork_id:
+                  type: string
+                image_url:
+                  type: string
+                  format: uri
+                metadata_sources:
+                  type: array
+                  items:
+                    type: string
+                    enum: ["getty", "wikidata", "google_arts"]
+      responses:
+        '200':
+          description: "Metadata processed successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtworkMetadata"
+        '400':
+          description: "Invalid request parameters"
+        '401':
+          description: "Authentication required"
+        '429':
+          description: "Rate limit exceeded"
+        '500':
+          description: "Internal server error"
+      parameters:
+        - in: header
+          name: X-Correlation-ID
+          schema:
+            type: string
+          required: false
+          description: "Request correlation ID"
+
+  /artwork/analyze:
+    post:
+      summary: "Analyze artwork style and characteristics"
+      description: "Performs comprehensive artwork analysis with enhanced validation"
+      operationId: analyzeArtwork
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      tags:
+        - Artwork Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - artwork_id
+                - metadata
+              properties:
+                artwork_id:
+                  type: string
+                metadata:
+                  $ref: "#/components/schemas/ArtworkMetadata"
+      responses:
+        '200':
+          description: "Analysis completed successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtworkAnalysis"
+        '400':
+          description: "Invalid request parameters"
+        '401':
+          description: "Authentication required"
+        '429':
+          description: "Rate limit exceeded"
+        '500':
+          description: "Internal server error"
+      parameters:
+        - in: header
+          name: X-Correlation-ID
+          schema:
+            type: string
+          required: false
+          description: "Request correlation ID"
+
+  /artwork/relationships:
+    get:
+      summary: "Get artwork relationships"
+      description: "Retrieves artwork relationships with improved validation"
+      operationId: getArtworkRelationships
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      tags:
+        - Artwork Relationships
+      parameters:
+        - in: query
+          name: artwork_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: relationship_types
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ["style", "period", "influence", "historical"]
+        - in: header
+          name: X-Correlation-ID
+          schema:
+            type: string
+          required: false
+          description: "Request correlation ID"
+      responses:
+        '200':
+          description: "Relationships retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtworkRelationships"
+        '400':
+          description: "Invalid request parameters"
+        '401':
+          description: "Authentication required"
+        '404':
+          description: "Artwork not found"
+        '429':
+          description: "Rate limit exceeded"
+        '500':
+          description: "Internal server error"
+
+tags:
+  - name: Metadata Processing
+    description: "Artwork metadata extraction and validation endpoints"
+  - name: Artwork Analysis
+    description: "Artwork analysis and classification endpoints"
+  - name: Artwork Relationships
+    description: "Artwork relationship management endpoints"
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+  - OAuth2: ["read:artwork", "write:artwork"]
