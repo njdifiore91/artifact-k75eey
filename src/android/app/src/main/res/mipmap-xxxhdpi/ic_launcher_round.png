@@ -1,0 +1,9 @@
+Dimensions: 192x192 pixels
+Format: PNG (Portable Network Graphics)
+Color Space: sRGB
+Alpha Channel: Yes (transparency support)
+Pixel Density: xxxhdpi (640dpi)
+Compression: Lossless PNG optimization
+File Location: src/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+Minimum SDK: API 21 (Android 5.0)
+Target SDK: Latest Android Version
