@@ -1,0 +1,236 @@
+# fastlane 2.217.0
+
+# Import required configurations
+import "./Appfile" # App identifier and team configuration
+import "./Matchfile" # Code signing configuration
+
+# Define global constants
+XCODE_PROJECT = "ArtKnowledgeGraph.xcodeproj"
+XCODE_WORKSPACE = "ArtKnowledgeGraph.xcworkspace"
+SCHEME_NAME = "ArtKnowledgeGraph"
+MIN_IOS_VERSION = "14.0"
+DEPLOYMENT_TIMEOUT = 120
+ROLLBACK_TIMEOUT = 120
+
+# Enhanced setup required before running any lane
+before_all do |lane, options|
+  # Verify development environment
+  verify_xcode
+  ensure_xcode_version(version: "14.0")
+  ensure_bundle_exec
+  
+  # Verify tool versions
+  cocoapods(repo_update: true) if File.exist?("../Podfile")
+  
+  # Setup code signing
+  setup_ci if ENV['CI']
+  sync_code_signing(
+    type: match_config[:type],
+    readonly: match_config[:readonly],
+    git_url: match_config[:git_url],
+    app_identifier: app_identifier,
+    force_for_new_devices: false
+  )
+  
+  # Initialize monitoring
+  ENV["FASTLANE_XCODE_LIST_TIMEOUT"] = "120"
+  ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
+  
+  # Setup audit logging
+  FastlaneCore::UI.important("Starting lane: #{lane}")
+end
+
+# Enhanced development build lane
+lane :build_development do |options|
+  # Validate environment
+  ensure_min_ios_version(min_version: MIN_IOS_VERSION)
+  
+  # Setup development signing
+  match(type: "development", readonly: true)
+  
+  # Increment build number
+  increment_build_number(
+    build_number: latest_testflight_build_number + 1,
+    xcodeproj: XCODE_PROJECT
+  )
+  
+  # Build development IPA
+  gym(
+    workspace: XCODE_WORKSPACE,
+    scheme: SCHEME_NAME,
+    configuration: options[:configuration] || "Debug",
+    clean: true,
+    export_method: "development",
+    include_bitcode: false,
+    include_symbols: true,
+    export_options: {
+      compileBitcode: false,
+      provisioningProfiles: {
+        app_identifier => "Art Knowledge Graph Development"
+      }
+    }
+  )
+  
+  # Run tests unless explicitly skipped
+  run_tests unless options[:skip_tests]
+end
+
+# Enhanced staging build lane
+lane :build_staging do |options|
+  # Validate environment
+  ensure_min_ios_version(min_version: MIN_IOS_VERSION)
+  
+  # Setup staging signing
+  match(type: "appstore", readonly: true)
+  
+  # Build staging IPA
+  gym(
+    workspace: XCODE_WORKSPACE,
+    scheme: SCHEME_NAME,
+    configuration: options[:configuration] || "Release",
+    clean: true,
+    export_method: "app-store",
+    include_bitcode: true,
+    include_symbols: true,
+    export_options: {
+      compileBitcode: true,
+      provisioningProfiles: {
+        app_identifier => "Art Knowledge Graph Distribution"
+      }
+    }
+  )
+  
+  # Deploy to TestFlight
+  pilot(
+    skip_waiting_for_build_processing: true,
+    skip_submission: true,
+    distribute_external: false,
+    notify_external_testers: false
+  )
+  
+  # Run health checks
+  run_tests(
+    workspace: XCODE_WORKSPACE,
+    scheme: SCHEME_NAME,
+    configuration: "Release",
+    clean: true
+  )
+end
+
+# Production deployment lane with blue/green strategy
+lane :deploy_production do |options|
+  # Validate production environment
+  ensure_min_ios_version(min_version: MIN_IOS_VERSION)
+  
+  # Setup production signing
+  match(type: "appstore", readonly: true)
+  
+  # Increment version numbers
+  increment_version_number(
+    bump_type: "patch"
+  )
+  increment_build_number(
+    build_number: latest_testflight_build_number + 1,
+    xcodeproj: XCODE_PROJECT
+  )
+  
+  # Build production IPA
+  gym(
+    workspace: XCODE_WORKSPACE,
+    scheme: SCHEME_NAME,
+    configuration: "Release",
+    clean: true,
+    export_method: "app-store",
+    include_bitcode: true,
+    include_symbols: true,
+    export_options: {
+      compileBitcode: true,
+      provisioningProfiles: {
+        app_identifier => "Art Knowledge Graph Production"
+      }
+    }
+  )
+  
+  # Deploy to TestFlight for verification
+  pilot(
+    skip_waiting_for_build_processing: false,
+    skip_submission: false,
+    distribute_external: true,
+    notify_external_testers: true,
+    changelog: read_changelog,
+    beta_app_review_info: {
+      contact_email: "support@artknowledgegraph.com",
+      contact_first_name: "Art",
+      contact_last_name: "Support",
+      contact_phone: "1234567890",
+      demo_account_name: "demo@artknowledgegraph.com",
+      demo_account_password: "demo123",
+      notes: "Please review the latest Art Knowledge Graph release"
+    }
+  )
+  
+  # Submit to App Store
+  deliver(
+    submit_for_review: true,
+    automatic_release: false,
+    force: true,
+    skip_metadata: false,
+    skip_screenshots: false,
+    skip_binary_upload: true,
+    submission_information: {
+      add_id_info_uses_idfa: false,
+      export_compliance_uses_encryption: true,
+      export_compliance_is_exempt: false
+    }
+  )
+end
+
+# Enhanced test execution lane
+lane :run_tests do |options|
+  # Setup test environment
+  xcclean(workspace: XCODE_WORKSPACE)
+  
+  # Run comprehensive test suite
+  scan(
+    workspace: XCODE_WORKSPACE,
+    scheme: SCHEME_NAME,
+    clean: true,
+    code_coverage: true,
+    device: "iPhone 14",
+    configuration: options[:test_configuration] || "Debug",
+    skip_build: options[:skip_build] || false,
+    result_bundle: true,
+    output_directory: "fastlane/test_output",
+    output_types: "html,junit",
+    fail_build: true
+  )
+  
+  # Generate and process coverage report
+  xcov(
+    workspace: XCODE_WORKSPACE,
+    scheme: SCHEME_NAME,
+    output_directory: "fastlane/coverage_output",
+    minimum_coverage_percentage: 80.0
+  )
+end
+
+# Error handling for all lanes
+error do |lane, exception|
+  # Log error details
+  FastlaneCore::UI.error("Error in lane #{lane}: #{exception}")
+  
+  # Notify team
+  notification(
+    title: "Lane #{lane} Failed",
+    message: exception.to_s,
+    success: false
+  )
+  
+  # Clean up
+  clean_build_artifacts
+  
+  # Trigger rollback if in production
+  if lane == :deploy_production
+    rollback_production
+  end
+end
