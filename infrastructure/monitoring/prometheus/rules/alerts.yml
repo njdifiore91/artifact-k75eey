@@ -1,0 +1,92 @@
+# Prometheus alerting rules for Art Knowledge Graph application
+# Version: 1.0
+# Prometheus version: 2.40+
+# Alertmanager version: 0.25+
+
+# Import recording rules from recording.yml for efficient alert evaluation
+# Uses pre-computed metrics for API, Graph, Resource and Database monitoring
+
+groups:
+  # API Performance Alerts
+  - name: api_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: api:error_rate:5m > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: backend
+          runbook_url: runbooks/api/high_error_rate.md
+        annotations:
+          summary: High API error rate detected
+          description: Error rate is above 5% for 5 minutes
+          dashboard: grafana.artknowledge.com/d/api-overview
+
+      - alert: HighLatency
+        expr: api:latency:p95:5m > 2
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+          runbook_url: runbooks/api/high_latency.md
+        annotations:
+          summary: High API latency detected
+          description: 95th percentile latency is above 2 seconds
+          dashboard: grafana.artknowledge.com/d/api-performance
+
+  # Graph Processing Alerts
+  - name: graph_alerts
+    rules:
+      - alert: SlowGraphProcessing
+        expr: graph:processing_time:avg:5m > 5
+        for: 5m
+        labels:
+          severity: warning
+          team: graph
+          runbook_url: runbooks/graph/slow_processing.md
+        annotations:
+          summary: Slow graph processing detected
+          description: Average processing time is above 5 seconds
+          dashboard: grafana.artknowledge.com/d/graph-performance
+
+  # Resource Utilization Alerts
+  - name: resource_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: container:cpu_usage:avg:5m > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+          runbook_url: runbooks/platform/high_cpu.md
+        annotations:
+          summary: High CPU usage detected
+          description: Container CPU usage above 85% for 10 minutes
+          dashboard: grafana.artknowledge.com/d/resource-usage
+
+      - alert: HighMemoryUsage
+        expr: container:memory_usage:avg:5m > 0.90
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+          runbook_url: runbooks/platform/high_memory.md
+        annotations:
+          summary: High memory usage detected
+          description: Container memory usage above 90% for 10 minutes
+          dashboard: grafana.artknowledge.com/d/resource-usage
+
+  # Database Performance Alerts
+  - name: database_alerts
+    rules:
+      - alert: HighConnectionCount
+        expr: database:connections:avg:5m > 100
+        for: 5m
+        labels:
+          severity: warning
+          team: database
+          runbook_url: runbooks/database/high_connections.md
+        annotations:
+          summary: High database connection count
+          description: Average connection count above 100 for 5 minutes
+          dashboard: grafana.artknowledge.com/d/database-overview
