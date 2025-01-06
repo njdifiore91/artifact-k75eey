@@ -1,0 +1,85 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0'
+        classpath 'com.facebook.react:react-native-gradle-plugin:0.71.0'
+        classpath 'org.gradle.security:dependency-verification:1.0.0'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url 'https://jitpack.io'
+            allowInsecureProtocol false
+        }
+        maven {
+            url 'https://www.jitpack.io'
+            allowInsecureProtocol false
+        }
+    }
+}
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            android {
+                compileSdkVersion 33
+                buildToolsVersion '33.0.0'
+
+                defaultConfig {
+                    minSdkVersion 26
+                    targetSdkVersion 33
+                }
+
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_1_8
+                    targetCompatibility JavaVersion.VERSION_1_8
+                }
+            }
+        }
+
+        configurations.all {
+            resolutionStrategy {
+                force 'com.facebook.react:react-native:0.71.0'
+                force 'org.jetbrains.kotlin:kotlin-android:1.8.0'
+                force 'androidx.core:core-ktx:1.9.0'
+                force 'androidx.fragment:fragment-ktx:1.5.5'
+                force 'androidx.biometric:biometric:1.1.0'
+                force 'org.d3js:d3-android:7.0.0'
+                force 'com.google.android.material:material:1.9.0'
+                force 'androidx.constraintlayout:constraintlayout:2.1.4'
+                force 'com.squareup.okhttp3:okhttp:4.9.2'
+                force 'androidx.security.crypto:crypto:1.1.0-alpha06'
+            }
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
+    }
+}
+
+gradle.startParameter.setParallelProjectExecutionEnabled(true)
+gradle.startParameter.setBuildCacheEnabled(true)
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
