@@ -1,0 +1,130 @@
+[[package]]
+name = "fastapi"
+version = "0.100.0"
+description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "fastapi-0.100.0-py3-none-any.whl", hash = "sha256:271662daf986da8fa98dc2b7c7f61c4abdfdccfb4786d79ed8b2878f172c6d5f"},
+    {file = "fastapi-0.100.0.tar.gz", hash = "sha256:acb5f941ea8215663283c10018323ba7ea737c571b67fc7e88e9469c7eb1d12e"}
+]
+
+[package.dependencies]
+pydantic = ">=2.0.0,<3.0.0"
+starlette = ">=0.27.0,<0.28.0"
+
+[[package]]
+name = "sqlalchemy"
+version = "2.0.19"
+description = "Database Abstraction Library"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "SQLAlchemy-2.0.19-cp37-cp37m-win_amd64.whl", hash = "sha256:9deaae357edc2091a9ed5d25e9ee8bba98bcfae454b3911adeaf159c2e9ca9e3"},
+    {file = "SQLAlchemy-2.0.19.tar.gz", hash = "sha256:77a14c9d0c6f4cf3e159d4c2b59c46d2e21e7c9ec22a09a6d8e54bd38d98d417"}
+]
+
+[package.dependencies]
+typing-extensions = ">=4.2.0"
+greenlet = ">=2.0.0"
+
+[[package]]
+name = "neo4j"
+version = "5.10.0"
+description = "Neo4j Bolt driver for Python"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "neo4j-5.10.0-py3-none-any.whl", hash = "sha256:e33d09c9c7d4c8df6c8c8e1d5b3447cd80f4c9e0c66e621cdc7d9b6ee63a3ab9"},
+    {file = "neo4j-5.10.0.tar.gz", hash = "sha256:d7aa0a7e7a0a2f0a3cc9c20ad0d3f2954e2b46c36aa77e3f6a9fcbcd8c95a3e7"}
+]
+
+[[package]]
+name = "pydantic"
+version = "2.0.3"
+description = "Data validation using Python type hints"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pydantic-2.0.3-py3-none-any.whl", hash = "sha256:614eb3321eb600c81899a88fa9858b008e3c79e0d4f1b49ab1f516b4b0c27cfb"},
+    {file = "pydantic-2.0.3.tar.gz", hash = "sha256:94f13e0dcf139a5125e88283fc999788d894e4b1e7ae7b4fc429fe27d37d9351"}
+]
+
+[[package]]
+name = "pillow"
+version = "10.0.0"
+description = "Python Imaging Library (Fork)"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "Pillow-10.0.0-cp38-cp38-win_amd64.whl", hash = "sha256:1f62406a884ae75fb2f818694469519fb685cc7eaff05d3451a9ebe55c646891"},
+    {file = "Pillow-10.0.0.tar.gz", hash = "sha256:9c82b5b3e043c7af0d95792d0d20ccf68f61a1fec6b3530e718b688422727396"}
+]
+
+[[package]]
+name = "pandas"
+version = "2.0.3"
+description = "Powerful data structures for data analysis, time series, and statistics"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pandas-2.0.3-cp38-cp38-win_amd64.whl", hash = "sha256:9ebb9f1c22d73c3c0d74b56bfe0a78d6f0ec3f59a3185af0b3b77f11475b8c75"},
+    {file = "pandas-2.0.3.tar.gz", hash = "sha256:c1b49c0a935b581c4c5b7814202fc8c4fb8321c30bc8d2dba7d0b89f57c4c41f"}
+]
+
+[package.dependencies]
+numpy = ">=1.20.3"
+python-dateutil = ">=2.8.2"
+pytz = ">=2020.1"
+tzdata = ">=2022.1"
+
+[[package]]
+name = "pytest"
+version = "7.4.0"
+description = "pytest: simple powerful testing with Python"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pytest-7.4.0-py3-none-any.whl", hash = "sha256:78bf16451a2eb8c7a2ea98e32dc119fd2aa758f1d5d66dbf0a59d69a3969df32"},
+    {file = "pytest-7.4.0.tar.gz", hash = "sha256:b4bf8c45bd59934ed84001ad51e11b4ee40d40a1229d2c79f9c592b0a3f6bd8a"}
+]
+
+[[package]]
+name = "aiohttp"
+version = "3.8.5"
+description = "Async http client/server framework (asyncio)"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "aiohttp-3.8.5-cp38-cp38-win_amd64.whl", hash = "sha256:1c2f4c0e89c2ce5cf4cbc42e2ba4a4bace50b09cf7b457128dbe7fd567d13b9c"},
+    {file = "aiohttp-3.8.5.tar.gz", hash = "sha256:b9552ec52cc147dbf1944ac7ac98af7602e51ea2dcd076ed194ca3c0d1c7d0bc"}
+]
+
+[[package]]
+name = "redis"
+version = "4.6.0"
+description = "Python client for Redis database and key-value store"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "redis-4.6.0-py3-none-any.whl", hash = "sha256:e6206c0b2c3726627a416a55951c9c7b3b56d56f984e58d3dc3eacd3d84d2e46"},
+    {file = "redis-4.6.0.tar.gz", hash = "sha256:c2b12d1f21a6f3a52b22193ba8e69944d2d4d4c2475b56ad956a160c70ecf0bf"}
+]
+
+[metadata]
+lock-version = "2.0"
+python-versions = "^3.11"
+content-hash = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+platforms = ["linux", "darwin", "win32"]
+
+[metadata.files]
+# Additional package file entries would follow...
