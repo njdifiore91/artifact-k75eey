@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: art-knowledge-graph-config
+  namespace: default
+  labels:
+    app: art-knowledge-graph
+    environment: production
+    managed-by: terraform
+    version: 1.0.0
+data:
+  # Global Configuration
+  ENVIRONMENT: production
+  LOG_LEVEL: INFO
+  API_VERSION: v1
+  REGION: us-east-1
+  CORS_ORIGINS: https://app.artknowledgegraph.com
+  MONITORING_ENABLED: "true"
+  TRACING_ENABLED: "true"
+
+  # API Gateway Configuration
+  API_GATEWAY_HOST: 0.0.0.0
+  API_GATEWAY_PORT: "8000"
+  API_GATEWAY_RATE_LIMIT: 100/minute
+  API_GATEWAY_TIMEOUT: 30s
+  API_GATEWAY_MAX_PAYLOAD_SIZE: 10MB
+  API_GATEWAY_COMPRESSION_ENABLED: "true"
+  API_GATEWAY_HEALTH_CHECK_PATH: /health
+
+  # Auth Service Configuration
+  AUTH_SERVICE_HOST: 0.0.0.0
+  AUTH_SERVICE_PORT: "8001"
+  AUTH_SERVICE_SESSION_TIMEOUT: 24h
+  AUTH_SERVICE_TOKEN_EXPIRY: 1h
+  AUTH_SERVICE_REFRESH_TOKEN_EXPIRY: 7d
+  AUTH_SERVICE_MAX_LOGIN_ATTEMPTS: "5"
+  AUTH_SERVICE_PASSWORD_POLICY: strong
+
+  # Data Processor Configuration
+  DATA_PROCESSOR_HOST: 0.0.0.0
+  DATA_PROCESSOR_PORT: "8002"
+  DATA_PROCESSOR_IMAGE_BATCH_SIZE: "10"
+  DATA_PROCESSOR_METADATA_CACHE_TTL: "3600"
+  DATA_PROCESSOR_MAX_IMAGE_SIZE: 20MB
+  DATA_PROCESSOR_SUPPORTED_FORMATS: jpg,png,webp
+  DATA_PROCESSOR_PROCESSING_TIMEOUT: 300s
+  DATA_PROCESSOR_RETRY_ATTEMPTS: "3"
+
+  # Graph Service Configuration
+  GRAPH_SERVICE_HOST: 0.0.0.0
+  GRAPH_SERVICE_PORT: "8003"
+  GRAPH_SERVICE_GENERATION_TIMEOUT: "300"
+  GRAPH_SERVICE_MAX_NODES: "1000"
+  GRAPH_SERVICE_CACHE_TTL: "3600"
+  GRAPH_SERVICE_MAX_DEPTH: "5"
+  GRAPH_SERVICE_BATCH_SIZE: "50"
+  GRAPH_SERVICE_QUERY_TIMEOUT: 60s
+
+  # External Service Endpoints
+  WIKIDATA_ENDPOINT: https://query.wikidata.org/sparql
+  GETTY_API_ENDPOINT: https://api.getty.edu/art/collection/v1
+  GOOGLE_ARTS_ENDPOINT: https://www.google.com/arts/api/v1
+
+  # Cache Configuration
+  REDIS_HOST: art-knowledge-graph-redis
+  REDIS_PORT: "6379"
+  REDIS_DEFAULT_TTL: "3600"
+  REDIS_MAX_MEMORY_POLICY: allkeys-lru
+  REDIS_COMPRESSION_ENABLED: "true"
+
+  # Monitoring Configuration
+  METRICS_PATH: /metrics
+  METRICS_COLLECTION_INTERVAL: 15s
+  METRICS_RETENTION_DAYS: "30"
+  METRICS_ALERT_THRESHOLD: "90"
