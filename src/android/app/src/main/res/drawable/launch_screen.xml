@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+    Launch screen drawable implementing Material Design 3.0 guidelines
+    - Hardware-accelerated linear gradient background
+    - Theme-aware colors that adapt to system theme
+    - Strategic 45-degree gradient placement for visual hierarchy
+    - Optimized for drawable caching
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="45"
+                android:startColor="@color/colorPrimary"
+                android:endColor="@color/colorBackground"
+                android:useLevel="false" />
+        </shape>
+    </item>
+</layer-list>
