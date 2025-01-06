@@ -1,0 +1,184 @@
+{
+  "common": {
+    "app": {
+      "name": "Art Knowledge Graph",
+      "tagline": "Explore Art Through Connections",
+      "version": "v1.0"
+    },
+    "navigation": {
+      "home": "Home",
+      "explore": "Explore",
+      "upload": "Upload",
+      "profile": "Profile",
+      "settings": "Settings",
+      "back": "Back",
+      "next": "Next"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "share": "Share",
+      "retry": "Try Again",
+      "done": "Done",
+      "confirm": "Confirm"
+    },
+    "search": {
+      "placeholder": "Search artwork or artists...",
+      "no_results": "No results found",
+      "suggestions": "Search suggestions",
+      "recent": "Recent searches"
+    },
+    "filters": {
+      "title": "Filters",
+      "apply": "Apply Filters",
+      "clear": "Clear All",
+      "sort_by": "Sort by",
+      "date": "Date",
+      "relevance": "Relevance",
+      "alphabetical": "A-Z"
+    },
+    "accessibility": {
+      "loading": "Loading content",
+      "menu_open": "Open menu",
+      "menu_close": "Close menu",
+      "image_alt": "Artwork image of {{title}}",
+      "graph_desc": "Interactive art knowledge graph"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "email_label": "Email Address",
+      "password_label": "Password",
+      "submit": "Log In",
+      "forgot_password": "Forgot Password?",
+      "no_account": "Don't have an account?",
+      "create_account": "Create Account",
+      "social": {
+        "google": "Continue with Google",
+        "apple": "Continue with Apple",
+        "facebook": "Continue with Facebook"
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "name_label": "Full Name",
+      "email_label": "Email Address",
+      "password_label": "Password",
+      "confirm_password_label": "Confirm Password",
+      "submit": "Sign Up",
+      "has_account": "Already have an account?",
+      "login": "Log In",
+      "terms": "By signing up, you agree to our Terms and Privacy Policy"
+    },
+    "password": {
+      "requirements": "Password must contain:",
+      "min_length": "At least 8 characters",
+      "uppercase": "One uppercase letter",
+      "number": "One number",
+      "special": "One special character",
+      "reset_title": "Reset Password",
+      "reset_submit": "Send Reset Link"
+    }
+  },
+  "artwork": {
+    "upload": {
+      "title": "Upload Artwork",
+      "drag_drop": "Drag and drop your image here",
+      "or_browse": "or browse files",
+      "supported_formats": "Supports JPG, PNG, TIFF (max 20MB)",
+      "processing": "Processing your artwork...",
+      "success": "Upload successful!",
+      "generating_graph": "Generating knowledge graph..."
+    },
+    "metadata": {
+      "title": "Artwork Title",
+      "artist": "Artist Name",
+      "year": "Year Created",
+      "medium": "Medium",
+      "style": "Art Style",
+      "movement": "Art Movement",
+      "dimensions": "Dimensions",
+      "location": "Current Location",
+      "collection": "Collection",
+      "description": "Description"
+    },
+    "status": {
+      "processing": "Analyzing artwork...",
+      "extracting": "Extracting metadata...",
+      "connecting": "Finding connections...",
+      "complete": "Analysis complete",
+      "failed": "Processing failed"
+    }
+  },
+  "graph": {
+    "visualization": {
+      "zoom_in": "Zoom in",
+      "zoom_out": "Zoom out",
+      "reset": "Reset view",
+      "fit": "Fit to screen",
+      "fullscreen": "Enter fullscreen"
+    },
+    "interaction": {
+      "pan": "Drag to pan",
+      "zoom": "Pinch to zoom",
+      "select": "Tap node to select",
+      "expand": "Double tap to expand",
+      "details": "Long press for details"
+    },
+    "nodes": {
+      "artwork": "Artwork",
+      "artist": "Artist",
+      "movement": "Art Movement",
+      "influence": "Influence",
+      "period": "Time Period",
+      "location": "Location",
+      "technique": "Technique"
+    },
+    "analysis": {
+      "title": "Graph Analysis",
+      "connections": "{{count}} connections found",
+      "strongest": "Strongest connections",
+      "similar": "Similar artworks",
+      "insights": "Key insights"
+    },
+    "export": {
+      "title": "Export Graph",
+      "format": "Choose format",
+      "quality": "Image quality",
+      "include_metadata": "Include metadata",
+      "processing": "Preparing export...",
+      "success": "Export complete"
+    }
+  },
+  "errors": {
+    "validation": {
+      "required": "This field is required",
+      "email": "Please enter a valid email address",
+      "password_match": "Passwords do not match",
+      "min_length": "Must be at least {{count}} characters",
+      "max_length": "Must be less than {{count}} characters",
+      "invalid_year": "Please enter a valid year"
+    },
+    "network": {
+      "offline": "You are offline",
+      "retry": "Please check your connection and try again",
+      "timeout": "Request timed out",
+      "server": "Server error occurred"
+    },
+    "upload": {
+      "size": "File size exceeds 20MB limit",
+      "format": "Unsupported file format",
+      "corrupted": "File appears to be corrupted",
+      "failed": "Upload failed, please try again"
+    },
+    "graph": {
+      "generation": "Failed to generate graph",
+      "load": "Failed to load graph",
+      "export": "Failed to export graph",
+      "data": "Error loading graph data"
+    }
+  }
+}
