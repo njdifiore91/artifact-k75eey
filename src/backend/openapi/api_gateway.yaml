@@ -1,0 +1,484 @@
+openapi: 3.0.3
+info:
+  title: Art Knowledge Graph API
+  description: |
+    API Gateway for the Art Knowledge Graph application providing secure endpoints
+    for artwork analysis, knowledge graph generation, and user management.
+  version: 1.0.0
+  contact:
+    name: Art Knowledge Graph Support
+    email: support@artknowledgegraph.com
+
+servers:
+  - url: https://api.artknowledgegraph.com/v1
+    description: Production server
+  - url: https://staging-api.artknowledgegraph.com/v1
+    description: Staging server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /artwork:
+    post:
+      summary: Upload new artwork
+      description: Upload artwork image with metadata for analysis and graph generation
+      operationId: uploadArtwork
+      security:
+        - BearerAuth: []
+      x-ratelimit-limit: 10/minute
+      tags:
+        - artwork
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ArtworkUploadRequest'
+      responses:
+        '201':
+          description: Artwork successfully uploaded and processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtworkResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /artwork/{artwork_id}:
+    get:
+      summary: Get artwork details
+      description: Retrieve artwork details including metadata and graph node
+      operationId: getArtwork
+      security:
+        - BearerAuth: []
+      x-ratelimit-limit: 100/minute
+      tags:
+        - artwork
+      parameters:
+        - $ref: '#/components/parameters/ArtworkId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Artwork details retrieved successfully
+          headers:
+            ETag:
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtworkResponse'
+        '304':
+          description: Not modified
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /graph/{artwork_id}:
+    get:
+      summary: Get artwork knowledge graph
+      description: Retrieve knowledge graph for an artwork with configurable depth
+      operationId: getGraph
+      security:
+        - BearerAuth: []
+      x-ratelimit-limit: 100/minute
+      tags:
+        - graph
+      parameters:
+        - $ref: '#/components/parameters/ArtworkId'
+        - name: depth
+          in: query
+          description: Graph traversal depth
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+            default: 2
+      responses:
+        '200':
+          description: Graph retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /users/register:
+    post:
+      summary: Register new user
+      description: Register a new user account with secure password validation
+      operationId: registerUser
+      x-ratelimit-limit: 5/minute
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /users/login:
+    post:
+      summary: User login
+      description: Authenticate user and receive JWT token
+      operationId: loginUser
+      x-ratelimit-limit: 10/minute
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+components:
+  schemas:
+    ArtworkUploadRequest:
+      type: object
+      properties:
+        image:
+          type: string
+          format: binary
+        metadata:
+          $ref: '#/components/schemas/ArtworkMetadata'
+      required:
+        - image
+        - metadata
+
+    ArtworkMetadata:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 500
+        artist:
+          type: string
+          minLength: 1
+        year:
+          type: integer
+          minimum: -3000
+        medium:
+          type: string
+        dimensions:
+          type: object
+          properties:
+            height:
+              type: number
+            width:
+              type: number
+            unit:
+              type: string
+              enum: [cm, mm, inches]
+        description:
+          type: string
+          maxLength: 5000
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 50
+      required:
+        - title
+        - artist
+        - year
+
+    ArtworkResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        metadata:
+          $ref: '#/components/schemas/ArtworkMetadata'
+        image_url:
+          type: string
+          format: uri
+        thumbnail_url:
+          type: string
+          format: uri
+        graph_node:
+          $ref: '#/components/schemas/NodeSchema'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        processing_status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        version:
+          type: integer
+          minimum: 1
+        access_rights:
+          type: object
+          properties:
+            view:
+              type: boolean
+            edit:
+              type: boolean
+
+    GraphResponse:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeSchema'
+        relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationshipSchema'
+        metadata:
+          type: object
+        depth:
+          type: integer
+        version:
+          type: integer
+
+    NodeSchema:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [ARTWORK, ARTIST, MOVEMENT, PERIOD, INFLUENCE, TECHNIQUE]
+        label:
+          type: string
+        properties:
+          type: object
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+        version:
+          type: integer
+
+    RelationshipSchema:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [CREATED_BY, BELONGS_TO, INFLUENCED_BY, PART_OF, USES_TECHNIQUE]
+        source_id:
+          type: string
+          format: uuid
+        target_id:
+          type: string
+          format: uuid
+        metadata:
+          type: object
+        bidirectional:
+          type: boolean
+        version:
+          type: integer
+
+    UserCreate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 12
+          pattern: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,}$'
+        password_confirm:
+          type: string
+          format: password
+        name:
+          type: string
+      required:
+        - email
+        - password
+        - password_confirm
+        - name
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        premium_status:
+          type: boolean
+        preferences:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        last_login:
+          type: string
+          format: date-time
+        access_token:
+          type: string
+        token_type:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        request_id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for API authentication
+
+  parameters:
+    ArtworkId:
+      name: artwork_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Unique identifier of the artwork
+
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      schema:
+        type: string
+      description: ETag from previous request for caching
+
+  responses:
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    UnauthorizedError:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    ConflictError:
+      description: Resource conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
