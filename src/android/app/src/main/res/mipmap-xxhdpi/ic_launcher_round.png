@@ -1,0 +1,10 @@
+Format: PNG-24 with alpha channel
+Dimensions: 432x432 pixels (144x144dp at xxhdpi/3.0x scale)
+Color Depth: 32-bit
+Compression: Optimized lossless
+Anti-aliasing: 8x multi-sample
+Mask Type: Perfect circle with smooth edges
+Density: xxhdpi (approximately 480dpi)
+Scale Factor: 3.0x baseline density
+Target Devices: Android devices with xxhdpi screens
+Fallback Support: Pre-Android 8.0 and devices without adaptive icon support
