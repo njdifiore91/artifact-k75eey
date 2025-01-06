@@ -1,0 +1,65 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: art-knowledge-graph-ingress
+  namespace: default
+  labels:
+    app: art-knowledge-graph
+    environment: production
+    tier: frontend
+    managed-by: kubernetes
+  annotations:
+    # Ingress class and AWS ALB configuration
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    
+    # TLS and Security configuration
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS-1-2
+    alb.ingress.kubernetes.io/certificate-arn: ${SSL_CERT_ARN}
+    alb.ingress.kubernetes.io/waf-acl-id: ${WAF_ACL_ID}
+    alb.ingress.kubernetes.io/security-groups: ${SECURITY_GROUP_IDS}
+    
+    # Health check configuration
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "15"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/success-codes: "200-399"
+    
+    # Load balancer attributes
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=60
+    
+    # Resource tagging
+    alb.ingress.kubernetes.io/tags: Environment=production,Project=art-knowledge-graph
+
+spec:
+  rules:
+    - host: api.artknowledgegraph.com
+      http:
+        paths:
+          # Auth service routing
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 8000
+          
+          # Main API service routing (catch-all)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: art-knowledge-graph-api
+                port:
+                  number: 8000
+  
+  # TLS configuration
+  tls:
+    - hosts:
+        - api.artknowledgegraph.com
+      secretName: art-knowledge-graph-tls
