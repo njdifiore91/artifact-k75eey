@@ -1,0 +1,335 @@
+openapi: 3.0.3
+info:
+  title: Art Knowledge Graph Authentication Service
+  version: 1.0.0
+  description: |
+    Authentication and authorization service for the Art Knowledge Graph application.
+    Provides secure user authentication with multiple methods including OAuth 2.0,
+    MFA support, and role-based access control.
+
+servers:
+  - url: /auth/v1
+    description: Authentication service base path
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique user identifier
+        email:
+          type: string
+          format: email
+          description: User's email address
+        full_name:
+          type: string
+          description: User's full name
+        role:
+          type: string
+          enum: [anonymous, free_user, premium, admin]
+          description: User's role determining access levels
+        is_active:
+          type: boolean
+          description: Whether the user account is active
+        mfa_enabled:
+          type: boolean
+          description: Whether MFA is enabled for the user
+        oauth_provider:
+          type: string
+          enum: [google, apple]
+          nullable: true
+          description: OAuth provider if applicable
+        last_login:
+          type: string
+          format: date-time
+          description: Timestamp of last successful login
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        mfa_code:
+          type: string
+          pattern: '^[0-9]{6}$'
+          description: TOTP code if MFA is enabled
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        token_type:
+          type: string
+          enum: [Bearer]
+        expires_in:
+          type: integer
+          description: Token expiration in seconds
+        user:
+          $ref: '#/components/schemas/User'
+        requires_mfa:
+          type: boolean
+          description: Whether MFA verification is required
+        rate_limit:
+          type: object
+          properties:
+            limit:
+              type: integer
+            remaining:
+              type: integer
+            reset:
+              type: integer
+              description: Unix timestamp when limit resets
+
+    OAuthCallback:
+      type: object
+      required:
+        - code
+        - state
+      properties:
+        code:
+          type: string
+          description: OAuth authorization code
+        state:
+          type: string
+          description: CSRF protection state token
+
+    RefreshRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Valid refresh token
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error description
+        status_code:
+          type: integer
+          description: HTTP status code
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+    
+    oauth2Auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /auth/v1/oauth/{provider}/authorize
+          tokenUrl: /auth/v1/oauth/{provider}/token
+          scopes:
+            profile: Basic profile information
+            email: Email address
+
+paths:
+  /login:
+    post:
+      summary: Authenticate user with email and password
+      operationId: login
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-rate-limit:
+        rate: 10
+        per: 60
+        description: 10 requests per minute
+
+  /oauth/{provider}/callback:
+    parameters:
+      - name: provider
+        in: path
+        required: true
+        schema:
+          type: string
+          enum: [google, apple]
+    get:
+      summary: Handle OAuth provider callback
+      operationId: oauthCallback
+      tags: [Authentication]
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful OAuth authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid OAuth callback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-rate-limit:
+        rate: 30
+        per: 60
+        description: 30 requests per minute
+
+  /refresh:
+    post:
+      summary: Refresh expired access token
+      operationId: refreshToken
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-rate-limit:
+        rate: 60
+        per: 60
+        description: 60 requests per minute
+
+  /mfa/validate:
+    post:
+      summary: Validate MFA token
+      operationId: validateMfa
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  pattern: '^[0-9]{6}$'
+      responses:
+        '200':
+          description: MFA validation successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid MFA token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-rate-limit:
+        rate: 3
+        per: 300
+        description: 3 attempts per 5 minutes
+
+  /mfa/setup:
+    post:
+      summary: Setup MFA for user account
+      operationId: setupMfa
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: MFA setup successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  secret:
+                    type: string
+                    description: TOTP secret key
+                  qr_code:
+                    type: string
+                    format: uri
+                    description: QR code URI for TOTP setup
+        '400':
+          description: MFA already enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: Authentication
+    description: Authentication and authorization endpoints
+
+security:
+  - bearerAuth: []
+  - oauth2Auth: []
