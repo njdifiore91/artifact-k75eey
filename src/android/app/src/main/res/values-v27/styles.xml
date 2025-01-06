@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+    API 27 (Android 8.1) specific theme attributes
+    - Implements Material Design 3.0 navigation bar styling
+    - Supports light/dark theme compatibility
+    - Enables edge-to-edge content with transparent system bars
+    - Customizes navigation bar appearance and behavior
+-->
+<resources>
+    <!-- 
+        Main application theme for API 27+
+        Parent: Theme.MaterialComponents.DayNight.NoActionBar (v1.9.0)
+        Extends: values/styles.xml Theme.App
+    -->
+    <style name="Theme.App" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Navigation Bar Customization -->
+        <item name="android:navigationBarColor">@color/colorSurface</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:navigationBarDividerColor">@color/colorSurface</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+
+        <!-- Status Bar Customization -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- System UI Integration -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowBackground">@color/colorSurface</item>
+
+        <!-- Material Design Theme Attributes -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+    </style>
+</resources>
