@@ -1,0 +1,101 @@
+"common.app.name" = "Art Knowledge Graph";
+
+/* Common Button Labels */
+"common.buttons.upload" = "Upload Artwork";
+"common.buttons.search" = "Search";
+"common.buttons.cancel" = "Cancel";
+"common.buttons.save" = "Save";
+
+/* Home Screen */
+"home.title" = "Art Knowledge Graph";
+"home.recent.title" = "Recent Graphs";
+"home.featured.title" = "Featured Collections";
+
+/* Upload Flow */
+"upload.title" = "Upload Artwork";
+"upload.camera.button" = "Take Photo";
+"upload.library.button" = "Choose from Library";
+"upload.processing" = "Processing Artwork...";
+
+/* Graph View */
+"graph.title" = "Knowledge Graph";
+"graph.controls.zoom" = "Zoom";
+"graph.controls.filter" = "Filter";
+"graph.export.title" = "Export Graph";
+
+/* Search */
+"search.placeholder" = "Search artwork or artists...";
+"search.filters.title" = "Filters";
+"search.results.empty" = "No results found";
+
+/* Error Messages */
+"error.generic" = "Something went wrong. Please try again.";
+"error.network" = "Network connection error. Please check your connection.";
+"error.upload" = "Failed to upload artwork. Please try again.";
+
+/* Graph Node Types - Used in graph visualization */
+"node.type.artwork" = "Artwork";
+"node.type.artist" = "Artist";
+"node.type.movement" = "Art Movement";
+"node.type.period" = "Time Period";
+"node.type.technique" = "Technique";
+
+/* Graph Details View */
+"graph.details.created" = "Created: %@";
+"graph.details.artist" = "Artist: %@";
+"graph.details.year" = "Year: %d";
+"graph.details.movement" = "Movement: %@";
+"graph.details.medium" = "Medium: %@";
+
+/* Filter Panel */
+"filter.time.range" = "Time Range: %@ - %@";
+"filter.movement.title" = "Art Movements";
+"filter.technique.title" = "Techniques";
+"filter.period.title" = "Time Periods";
+
+/* Export Options */
+"export.format.image" = "Image (PNG)";
+"export.format.pdf" = "Document (PDF)";
+"export.format.url" = "Share URL";
+"export.quality.label" = "Quality: %@";
+"export.progress" = "Exporting... %d%%";
+
+/* Accessibility Labels */
+"accessibility.graph.zoom.in" = "Zoom in graph";
+"accessibility.graph.zoom.out" = "Zoom out graph";
+"accessibility.graph.reset" = "Reset graph view";
+"accessibility.node.selected" = "%@ selected. Double tap for details.";
+"accessibility.upload.progress" = "Upload progress: %d percent complete";
+
+/* Loading States */
+"loading.graph" = "Loading graph...";
+"loading.metadata" = "Loading artwork details...";
+"loading.search" = "Searching...";
+
+/* Success Messages */
+"success.upload" = "Artwork uploaded successfully";
+"success.export" = "Graph exported successfully";
+"success.share" = "Graph shared successfully";
+
+/* Confirmation Dialogs */
+"dialog.delete.title" = "Delete Graph";
+"dialog.delete.message" = "Are you sure you want to delete this graph? This action cannot be undone.";
+"dialog.exit.title" = "Exit Without Saving";
+"dialog.exit.message" = "You have unsaved changes. Are you sure you want to exit?";
+
+/* Time Formats */
+"time.format.date" = "%@ at %@";
+"time.format.relative.days" = "%d days ago";
+"time.format.relative.hours" = "%d hours ago";
+"time.format.relative.minutes" = "%d minutes ago";
+
+/* Measurement Units */
+"units.pixels" = "%d px";
+"units.megabytes" = "%.1f MB";
+"units.percentage" = "%d%%";
+
+/* Premium Features */
+"premium.feature.export" = "Export in high resolution";
+"premium.feature.advanced" = "Advanced graph analysis";
+"premium.upgrade.button" = "Upgrade to Premium";
+"premium.price" = "From %@ per month";
