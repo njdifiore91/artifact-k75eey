@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108"
+    android:tint="@color/ic_launcher_foreground">
+
+    <!-- Background group for safe zone alignment -->
+    <group
+        android:scaleX="0.6111111"
+        android:scaleY="0.6111111"
+        android:translateX="21"
+        android:translateY="21">
+
+        <!-- Art Knowledge Graph Icon - Frame Element -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M66,33 L42,33 C37.58,33 34,36.58 34,41 L34,65 C34,69.42 37.58,73 42,73 L66,73 C70.42,73 74,69.42 74,65 L74,41 C74,36.58 70.42,33 66,33 Z" />
+
+        <!-- Connected Nodes Representation -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M54,45 C57.31,45 60,47.69 60,51 C60,54.31 57.31,57 54,57 C50.69,57 48,54.31 48,51 C48,47.69 50.69,45 54,45" />
+
+        <!-- Knowledge Graph Connection Lines -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:pathData="M54,51 L66,63 M54,51 L42,63 M54,51 L54,39" />
+
+        <!-- Artistic Element - Brush Stroke -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M42,39 C45.5,36.5 48.5,36.5 54,39 C59.5,41.5 62.5,41.5 66,39" />
+    </group>
+</vector>
