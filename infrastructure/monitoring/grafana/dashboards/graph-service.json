@@ -1,0 +1,300 @@
+{
+  "id": null,
+  "uid": "graph-service-metrics",
+  "title": "Graph Service Dashboard",
+  "tags": ["graph-service", "production", "monitoring"],
+  "timezone": "browser",
+  "refresh": "10s",
+  "schemaVersion": 36,
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Graph Generation Time",
+      "type": "graph",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "95th percentile of graph generation duration with 5s SLA threshold",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": 10
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(graph_generation_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "95th percentile"
+        }
+      ],
+      "thresholds": [
+        {
+          "value": 5,
+          "colorMode": "critical",
+          "op": "gt",
+          "fill": true,
+          "line": true,
+          "yaxis": "left"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "Query Response Times by Type",
+      "type": "graph",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Average response times for different query types with respective SLA thresholds",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(graph_query_duration_seconds_sum{query_type=\"simple_lookup\"}[5m]) / rate(graph_query_duration_seconds_count{query_type=\"simple_lookup\"}[5m])",
+          "legendFormat": "Simple Lookup"
+        },
+        {
+          "expr": "rate(graph_query_duration_seconds_sum{query_type=\"traversal\"}[5m]) / rate(graph_query_duration_seconds_count{query_type=\"traversal\"}[5m])",
+          "legendFormat": "2-Level Traversal"
+        },
+        {
+          "expr": "rate(graph_query_duration_seconds_sum{query_type=\"pattern_match\"}[5m]) / rate(graph_query_duration_seconds_count{query_type=\"pattern_match\"}[5m])",
+          "legendFormat": "Pattern Match"
+        }
+      ],
+      "thresholds": [
+        {
+          "value": 0.1,
+          "colorMode": "warning",
+          "op": "gt",
+          "fill": true,
+          "line": true
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "System Resources",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "panels": [
+        {
+          "id": 4,
+          "title": "Memory Usage",
+          "type": "gauge",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "expr": "process_resident_memory_bytes{service=\"graph-service\"} / 1024 / 1024",
+              "legendFormat": "Memory (MB)"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "MB",
+              "min": 0,
+              "max": 100
+            }
+          },
+          "thresholds": {
+            "steps": [
+              { "value": 0, "color": "green" },
+              { "value": 60, "color": "yellow" },
+              { "value": 80, "color": "red" }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 9
+          }
+        },
+        {
+          "id": 5,
+          "title": "CPU Usage",
+          "type": "gauge",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "expr": "rate(process_cpu_seconds_total{service=\"graph-service\"}[5m]) * 100",
+              "legendFormat": "CPU %"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            }
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Security Metrics",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "panels": [
+        {
+          "id": 7,
+          "title": "Failed Authentication Attempts",
+          "type": "stat",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(auth_failures_total{service=\"graph-service\"}[5m]))",
+              "legendFormat": "Auth Failures/min"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "steps": [
+                  { "value": 0, "color": "green" },
+                  { "value": 5, "color": "yellow" },
+                  { "value": 10, "color": "red" }
+                ]
+              }
+            }
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 18
+          }
+        },
+        {
+          "id": 8,
+          "title": "Rate Limited Requests",
+          "type": "graph",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(rate_limited_requests_total{service=\"graph-service\"}[5m]))",
+              "legendFormat": "Rate Limited/min"
+            }
+          ],
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 18
+          }
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "environment",
+        "type": "custom",
+        "query": "prod,staging,dev",
+        "current": {
+          "selected": true,
+          "text": "prod",
+          "value": "prod"
+        },
+        "options": [
+          {
+            "text": "prod",
+            "value": "prod"
+          },
+          {
+            "text": "staging",
+            "value": "staging"
+          },
+          {
+            "text": "dev",
+            "value": "dev"
+          }
+        ]
+      },
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": "label_values(graph_service_up, instance)",
+        "refresh": 2
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "links": [],
+  "annotations": {
+    "list": [
+      {
+        "name": "Deployments",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "enable": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "tags": ["deployment", "graph-service"],
+        "type": "tags"
+      }
+    ]
+  }
+}
