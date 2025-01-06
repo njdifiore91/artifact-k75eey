@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+    API 23 (Android 6.0) specific theme attributes
+    - Implements Material Design 3.0 system UI integration
+    - Enables light status bar and navigation bar modes
+    - Provides seamless system bar background drawing
+    - Version: Material Components 1.9.0
+-->
+<resources>
+    <!-- 
+        Main application theme for API 23+
+        Inherits from base Material Design theme while adding
+        API 23 specific system UI customizations
+    -->
+    <style name="Theme.App" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Status bar customization -->
+        <item name="android:statusBarColor">@color/colorSurface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+
+        <!-- Navigation bar customization -->
+        <item name="android:navigationBarColor">@color/colorSurface</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>
