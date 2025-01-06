@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>AppIDName</key>
+    <string>Art Knowledge Graph</string>
+    
+    <key>ApplicationIdentifierPrefix</key>
+    <array>
+        <string>$(TeamIdentifier)</string>
+    </array>
+    
+    <key>CreationDate</key>
+    <date>2023-11-14T00:00:00Z</date>
+    
+    <key>Platform</key>
+    <array>
+        <string>iOS</string>
+    </array>
+    
+    <key>IsXcodeManaged</key>
+    <true/>
+    
+    <key>DeveloperCertificates</key>
+    <array>
+        <data>$(DeveloperCertificateData)</data>
+    </array>
+    
+    <key>Entitlements</key>
+    <dict>
+        <key>application-identifier</key>
+        <string>$(TeamIdentifier).com.artknowledgegraph.app</string>
+        
+        <key>com.apple.developer.applesignin</key>
+        <array>
+            <string>Default</string>
+        </array>
+        
+        <key>com.apple.developer.associated-domains</key>
+        <array>
+            <string>applinks:artknowledgegraph.com</string>
+        </array>
+        
+        <key>com.apple.developer.authentication-services.autofill-credential-provider</key>
+        <true/>
+        
+        <key>com.apple.developer.default-data-protection</key>
+        <string>NSFileProtectionComplete</string>
+        
+        <key>com.apple.developer.usernotifications.push</key>
+        <true/>
+        
+        <key>com.apple.developer.devicecheck.appattest-environment</key>
+        <string>production</string>
+        
+        <key>get-task-allow</key>
+        <false/>
+        
+        <key>com.apple.security.application-groups</key>
+        <array>
+            <string>group.com.artknowledgegraph.app</string>
+        </array>
+        
+        <key>keychain-access-groups</key>
+        <array>
+            <string>$(AppIdentifierPrefix)com.artknowledgegraph.app</string>
+        </array>
+    </dict>
+    
+    <key>ExpirationDate</key>
+    <date>2024-11-14T00:00:00Z</date>
+    
+    <key>Name</key>
+    <string>Art Knowledge Graph Distribution</string>
+    
+    <key>ProvisionedDevices</key>
+    <array/>
+    
+    <key>TeamIdentifier</key>
+    <array>
+        <string>$(TeamIdentifier)</string>
+    </array>
+    
+    <key>TeamName</key>
+    <string>Art Knowledge Graph Team</string>
+    
+    <key>TimeToLive</key>
+    <integer>365</integer>
+    
+    <key>UUID</key>
+    <string>$(UUID)</string>
+    
+    <key>Version</key>
+    <integer>1</integer>
+    
+    <key>ProvisionsAllDevices</key>
+    <false/>
+    
+    <key>DER-Encoded-Profile</key>
+    <data>$(DEREncodedProfileData)</data>
+    
+    <key>Capabilities</key>
+    <array>
+        <string>push</string>
+        <string>sign-in-with-apple</string>
+        <string>camera</string>
+        <string>photo-library</string>
+        <string>biometric</string>
+        <string>network</string>
+        <string>background-processing</string>
+        <string>associated-domains</string>
+    </array>
+    
+    <key>MinimumPlatformVersion</key>
+    <string>14.0</string>
+    
+    <key>DistributionMethod</key>
+    <string>app-store</string>
+</dict>
+</plist>
