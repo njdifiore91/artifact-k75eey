@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Core App Identity -->
+    <key>CFBundleIdentifier</key>
+    <string>com.artknowledgegraph.app</string>
+    <key>CFBundleDisplayName</key>
+    <string>Art Knowledge Graph</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    
+    <!-- System Requirements -->
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    
+    <!-- Device Capabilities -->
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>armv7</string>
+        <string>metal</string>
+        <string>still-camera</string>
+    </array>
+    
+    <!-- Privacy Permissions -->
+    <key>NSCameraUsageDescription</key>
+    <string>Art Knowledge Graph needs access to your camera to capture artwork images for analysis and graph generation. The app uses advanced image processing to analyze artistic elements and create detailed knowledge graphs.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Art Knowledge Graph needs access to your photo library to select existing artwork images for analysis and graph generation. This allows you to work with previously captured artwork photos.</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>Art Knowledge Graph uses Face ID to securely authenticate you and protect your data. This ensures only you can access your personal art collections and analysis history.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Art Knowledge Graph can use your location to discover nearby artwork and exhibitions, enhancing your art exploration experience.</string>
+    
+    <!-- Supported Interface Orientations -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    
+    <!-- Background Modes -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>fetch</string>
+        <string>remote-notification</string>
+    </array>
+    
+    <!-- URL Schemes -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>artknowledgegraph</string>
+            </array>
+            <key>CFBundleURLName</key>
+            <string>com.artknowledgegraph.app</string>
+        </dict>
+    </array>
+    
+    <!-- Launch Screen -->
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    
+    <!-- Security -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    
+    <!-- App Transport Security -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>artknowledgegraph.com</key>
+            <dict>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <false/>
+                <key>NSExceptionRequiresForwardSecrecy</key>
+                <true/>
+                <key>NSExceptionMinimumTLSVersion</key>
+                <string>TLSv1.3</string>
+            </dict>
+        </dict>
+    </dict>
+</dict>
+</plist>
