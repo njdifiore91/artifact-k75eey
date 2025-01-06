@@ -1,0 +1,166 @@
+# Prometheus configuration for Art Knowledge Graph application
+# Version: 2.40+
+# Environment: Production
+# High-availability configuration with enhanced security and monitoring
+
+global:
+  # Global settings for all scrape targets
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+  
+  # Environment and application labels
+  external_labels:
+    environment: production
+    region: us-east-1
+    app: art-knowledge-graph
+    tier: premium
+
+# Import rule definitions
+rule_files:
+  - "rules/recording.yml"
+  - "rules/alerts.yml"
+  - "rules/security_alerts.yml"
+  - "rules/sla_alerts.yml"
+
+# High-availability alertmanager configuration
+alerting:
+  alertmanagers:
+    - scheme: https
+      basic_auth:
+        username: ${ALERTMANAGER_USER}
+        password: ${ALERTMANAGER_PASSWORD}
+      tls_config:
+        ca_file: /etc/prometheus/certs/ca.pem
+        cert_file: /etc/prometheus/certs/cert.pem
+        key_file: /etc/prometheus/certs/key.pem
+        server_name: alertmanager.monitoring.svc
+      static_configs:
+        - targets: ['alertmanager-0:9093', 'alertmanager-1:9093', 'alertmanager-2:9093']
+
+# Scrape configurations for all monitored services
+scrape_configs:
+  # API Gateway monitoring
+  - job_name: api_gateway
+    metrics_path: /metrics
+    scheme: https
+    scrape_interval: 10s
+    scrape_timeout: 8s
+    basic_auth:
+      username: ${METRICS_USER}
+      password: ${METRICS_PASSWORD}
+    tls_config:
+      ca_file: /etc/prometheus/certs/ca.pem
+      cert_file: /etc/prometheus/certs/cert.pem
+      key_file: /etc/prometheus/certs/key.pem
+    static_configs:
+      - targets: ['api-gateway:8080']
+        labels:
+          service: api_gateway
+          tier: frontend
+          criticality: high
+    relabel_configs:
+      - source_labels: ['__address__']
+        target_label: instance
+        replacement: '$1'
+
+  # Graph Service monitoring
+  - job_name: graph_service
+    metrics_path: /metrics
+    scheme: https
+    scrape_interval: 10s
+    scrape_timeout: 8s
+    basic_auth:
+      username: ${METRICS_USER}
+      password: ${METRICS_PASSWORD}
+    tls_config:
+      ca_file: /etc/prometheus/certs/ca.pem
+      cert_file: /etc/prometheus/certs/cert.pem
+      key_file: /etc/prometheus/certs/key.pem
+    static_configs:
+      - targets: ['graph-service:8081']
+        labels:
+          service: graph_service
+          tier: backend
+          criticality: high
+
+  # Database monitoring
+  - job_name: database
+    metrics_path: /metrics
+    scheme: https
+    scrape_interval: 30s
+    scrape_timeout: 25s
+    basic_auth:
+      username: ${METRICS_USER}
+      password: ${METRICS_PASSWORD}
+    tls_config:
+      ca_file: /etc/prometheus/certs/ca.pem
+      cert_file: /etc/prometheus/certs/cert.pem
+      key_file: /etc/prometheus/certs/key.pem
+    static_configs:
+      - targets: ['neo4j:7687', 'postgresql:5432']
+        labels:
+          service: database
+          tier: data
+          criticality: critical
+
+  # Cache monitoring
+  - job_name: cache
+    metrics_path: /metrics
+    scheme: https
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    basic_auth:
+      username: ${METRICS_USER}
+      password: ${METRICS_PASSWORD}
+    tls_config:
+      ca_file: /etc/prometheus/certs/ca.pem
+      cert_file: /etc/prometheus/certs/cert.pem
+      key_file: /etc/prometheus/certs/key.pem
+    static_configs:
+      - targets: ['redis:6379']
+        labels:
+          service: cache
+          tier: data
+          criticality: high
+
+  # Node/container monitoring
+  - job_name: node
+    metrics_path: /metrics
+    scheme: https
+    scrape_interval: 30s
+    scrape_timeout: 25s
+    basic_auth:
+      username: ${METRICS_USER}
+      password: ${METRICS_PASSWORD}
+    tls_config:
+      ca_file: /etc/prometheus/certs/ca.pem
+      cert_file: /etc/prometheus/certs/cert.pem
+      key_file: /etc/prometheus/certs/key.pem
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_node_name]
+        target_label: node
+        action: replace
+
+  # Service discovery for Kubernetes pods
+  - job_name: kubernetes-pods
+    metrics_path: /metrics
+    scheme: https
+    scrape_interval: 30s
+    scrape_timeout: 25s
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+    tls_config:
+      ca_file: /etc/prometheus/certs/ca.pem
+      cert_file: /etc/prometheus/certs/cert.pem
+      key_file: /etc/prometheus/certs/key.pem
