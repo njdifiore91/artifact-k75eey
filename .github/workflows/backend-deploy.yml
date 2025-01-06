@@ -1,0 +1,202 @@
+name: Backend Deployment
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+# Ensure only one deployment runs at a time
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+# Required permissions for OIDC authentication and security scanning
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  AWS_REGION: "us-east-1"
+  ECR_REPOSITORY: "art-knowledge-graph"
+  ECS_CLUSTER: "art-knowledge-graph-prod"
+  DOCKER_BUILDKIT: "1"
+  TERRAFORM_VERSION: "1.5.0"
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install security tools
+        run: |
+          pip install bandit safety gitguardian-scanner
+          
+      - name: Run SAST analysis
+        run: bandit -r src/backend -f sarif -o security-results.sarif
+        
+      - name: Check dependencies
+        run: safety check -r src/backend/requirements.txt
+        
+      - name: Upload security results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: security-results.sarif
+
+  build-and-push:
+    name: Build and Push Images
+    needs: security-scan
+    runs-on: ubuntu-latest
+    outputs:
+      image_tags: ${{ steps.build.outputs.tags }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and tag images
+        id: build
+        run: |
+          TIMESTAMP=$(date +%s)
+          TAG="${GITHUB_SHA::8}-${TIMESTAMP}"
+          docker build -t ${{ env.ECR_REPOSITORY }}:$TAG \
+            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+            -f src/backend/Dockerfile .
+          echo "tags=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@v0.10.0
+        with:
+          image-ref: ${{ env.ECR_REPOSITORY }}:${{ steps.build.outputs.tags }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+
+      - name: Push images to ECR
+        run: |
+          docker push ${{ env.ECR_REPOSITORY }}:${{ steps.build.outputs.tags }}
+
+  terraform-plan:
+    name: Terraform Plan
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        working-directory: infrastructure/terraform/environments/prod
+        run: terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+
+      - name: Terraform Plan
+        working-directory: infrastructure/terraform/environments/prod
+        run: |
+          terraform plan \
+            -var="image_tag=${{ needs.build-and-push.outputs.image_tags }}" \
+            -out=tfplan
+
+      - name: Upload Terraform plan
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfplan
+          path: infrastructure/terraform/environments/prod/tfplan
+
+  deploy:
+    name: Deploy to Production
+    needs: [terraform-plan, build-and-push]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://api.artknowledgegraph.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Terraform plan
+        uses: actions/download-artifact@v3
+        with:
+          name: tfplan
+          path: infrastructure/terraform/environments/prod
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Apply Terraform changes
+        working-directory: infrastructure/terraform/environments/prod
+        run: terraform apply -auto-approve tfplan
+
+      - name: Create ECS deployment
+        run: |
+          DEPLOYMENT_ID=$(aws ecs create-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service art-knowledge-graph \
+            --force-new-deployment \
+            --query 'service.deployments[0].id' \
+            --output text)
+          echo "deployment_id=${DEPLOYMENT_ID}" >> $GITHUB_ENV
+
+      - name: Monitor deployment health
+        run: |
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services art-knowledge-graph
+
+      - name: Verify deployment
+        run: |
+          HEALTH_CHECK=$(curl -s -o /dev/null -w "%{http_code}" https://api.artknowledgegraph.com/health)
+          if [ "$HEALTH_CHECK" != "200" ]; then
+            echo "Health check failed with status $HEALTH_CHECK"
+            exit 1
+          fi
+
+      - name: Notify deployment status
+        if: always()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "Backend Deployment Status: ${{ job.status }}\nEnvironment: Production\nImage: ${{ needs.build-and-push.outputs.image_tags }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
