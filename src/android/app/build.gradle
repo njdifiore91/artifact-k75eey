@@ -124,7 +124,7 @@ dependencies {
 
     debugImplementation 'com.facebook.flipper:flipper:0.125.0'
     debugImplementation 'com.facebook.flipper:flipper-network-plugin:0.125.0'
-    debugImplementation 'com.facebook.soloader:soloader:0.10.5'
+    debugImplementation 'com.facebook.soloader:soloader:0.12.1'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'androidx.test:core:1.4.0'
