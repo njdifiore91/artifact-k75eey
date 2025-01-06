@@ -1,0 +1,165 @@
+name: iOS Build & Deploy
+
+on:
+  push:
+    branches: 
+      - main
+      - develop
+      - 'release/*'
+    paths:
+      - 'src/ios/**'
+      - '.github/workflows/ios-build.yml'
+  pull_request:
+    branches: 
+      - main
+      - develop
+    paths:
+      - 'src/ios/**'
+
+# Prevent concurrent builds of the same branch
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DEVELOPER_APP_ID: ${{ secrets.DEVELOPER_APP_ID }}
+  PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.PROVISIONING_PROFILE_SPECIFIER }}
+  APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+  FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
+  FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }}
+  BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+  P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+  KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+jobs:
+  build-ios:
+    name: Build iOS App
+    runs-on: macos-latest
+    environment: ios-build
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Ruby environment
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Cache Pods
+        uses: actions/cache@v3
+        with:
+          path: ~/Library/Caches/CocoaPods
+          key: pods-cache-${{ runner.os }}-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            pods-cache-${{ runner.os }}-
+
+      - name: Cache Gems
+        uses: actions/cache@v3
+        with:
+          path: vendor/bundle
+          key: gems-cache-${{ runner.os }}-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            gems-cache-${{ runner.os }}-
+
+      - name: Cache DerivedData
+        uses: actions/cache@v3
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: derived-data-${{ runner.os }}-${{ hashFiles('**/*.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            derived-data-${{ runner.os }}-
+
+      - name: Install Fastlane
+        run: |
+          cd src/ios
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+
+      - name: Setup Provisioning Profiles
+        uses: apple-actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: 'com.artknowledgegraph.app'
+          profile-type: 'IOS_APP_STORE'
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+
+      - name: Install certificates
+        run: |
+          cd src/ios
+          echo $BUILD_CERTIFICATE_BASE64 | base64 --decode > certificate.p12
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security import certificate.p12 -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          rm certificate.p12
+
+      - name: Install dependencies
+        run: |
+          cd src/ios
+          bundle exec pod install
+          npm ci
+
+      - name: Run tests
+        run: |
+          cd src/ios
+          bundle exec fastlane run_tests
+
+      - name: Build development version
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          cd src/ios
+          bundle exec fastlane build_development
+
+      - name: Build staging version
+        if: startsWith(github.ref, 'refs/heads/release/')
+        run: |
+          cd src/ios
+          bundle exec fastlane build_staging
+
+      - name: Build production version
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd src/ios
+          bundle exec fastlane deploy_production
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-build
+          path: src/ios/build/*.ipa
+          retention-days: 5
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: src/ios/fastlane/test_output
+          retention-days: 5
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-logs
+          path: src/ios/fastlane/logs
+          retention-days: 5
+
+      - name: Cleanup credentials
+        if: always()
+        run: |
+          security delete-keychain build.keychain
