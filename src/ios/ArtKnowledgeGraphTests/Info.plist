@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>com.artknowledgegraph.app.tests</string>
+    
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    
+    <key>CFBundlePackageType</key>
+    <string>BNDL</string>
+    
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+        <string>metal</string>
+    </array>
+    
+    <key>MinimumOSVersion</key>
+    <string>14.0</string>
+    
+    <key>UIDeviceFamily</key>
+    <array>
+        <integer>1</integer>
+        <integer>2</integer>
+    </array>
+    
+    <key>TestTargetName</key>
+    <string>ArtKnowledgeGraphTests</string>
+    
+    <key>TestHost</key>
+    <string>$(BUILT_PRODUCTS_DIR)/ArtKnowledgeGraph.app/ArtKnowledgeGraph</string>
+    
+    <key>ENABLE_TESTABILITY</key>
+    <true/>
+    
+    <key>ENABLE_TESTING_SEARCH_PATHS</key>
+    <true/>
+    
+    <key>DEBUG_INFORMATION_FORMAT</key>
+    <string>dwarf-with-dsym</string>
+    
+    <key>COPY_PHASE_STRIP</key>
+    <false/>
+    
+    <key>SWIFT_VERSION</key>
+    <string>5.0</string>
+    
+    <key>SupportedPlatforms</key>
+    <array>
+        <string>iphoneos</string>
+        <string>iphonesimulator</string>
+    </array>
+    
+    <key>TestCoverageEnabled</key>
+    <true/>
+    
+    <key>TestCoverageTargets</key>
+    <array>
+        <string>ArtKnowledgeGraph</string>
+    </array>
+    
+    <key>TestCoverageExcludePatterns</key>
+    <array>
+        <string>*/Pods/*</string>
+        <string>*/Generated/*</string>
+    </array>
+    
+    <key>TestCoverageMinimumPercentage</key>
+    <integer>80</integer>
+    
+    <key>TestCoverageReportDirectory</key>
+    <string>$(BUILT_PRODUCTS_DIR)/coverage</string>
+    
+    <key>TestCoverageGenerateHTMLReport</key>
+    <true/>
+</dict>
+</plist>
