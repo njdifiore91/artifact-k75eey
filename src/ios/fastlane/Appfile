@@ -1,0 +1,16 @@
+# fastlane 2.217.0
+
+# The bundle identifier of your iOS application
+app_identifier("com.artknowledgegraph.app")
+
+# Your Apple Developer Portal username/email
+apple_id("developer@artknowledgegraph.com")
+
+# Developer Portal Team ID
+team_id("ARTKG12345") 
+
+# App Store Connect Team ID
+itc_team_id("ARTKG12345")
+
+# For more information about the Appfile, see:
+# https://docs.fastlane.tools/advanced/#appfile
