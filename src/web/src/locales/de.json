@@ -1,0 +1,68 @@
+{
+  "common": {
+    "app_name": "Art Knowledge Graph",
+    "loading": "Wird geladen...",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "done": "Fertig"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "forgot_password": "Passwort vergessen?",
+    "reset_password": "Passwort zurücksetzen"
+  },
+  "artwork": {
+    "upload": "Kunstwerk hochladen",
+    "details": "Kunstwerk Details",
+    "title": "Titel",
+    "artist": "Künstler",
+    "year": "Jahr",
+    "medium": "Medium",
+    "dimensions": "Abmessungen",
+    "description": "Beschreibung"
+  },
+  "graph": {
+    "view": "Graph anzeigen",
+    "export": "Graph exportieren",
+    "zoom_in": "Vergrößern",
+    "zoom_out": "Verkleinern",
+    "reset_view": "Ansicht zurücksetzen",
+    "filter": "Filter",
+    "legend": "Legende",
+    "node_types": "Knotentypen",
+    "edge_types": "Kantentypen"
+  },
+  "search": {
+    "search": "Suchen",
+    "search_placeholder": "Nach Kunstwerken oder Künstlern suchen...",
+    "no_results": "Keine Ergebnisse gefunden",
+    "filters": "Filter",
+    "sort_by": "Sortieren nach",
+    "results_count": "{{count}} Ergebnisse gefunden"
+  },
+  "profile": {
+    "settings": "Einstellungen",
+    "account": "Konto",
+    "preferences": "Präferenzen",
+    "theme": "Design",
+    "language": "Sprache",
+    "notifications": "Benachrichtigungen"
+  },
+  "errors": {
+    "generic_error": "Ein Fehler ist aufgetreten",
+    "network_error": "Netzwerkfehler",
+    "auth_error": "Authentifizierungsfehler",
+    "validation_error": "Validierungsfehler",
+    "not_found": "Nicht gefunden",
+    "permission_denied": "Zugriff verweigert"
+  }
+}
