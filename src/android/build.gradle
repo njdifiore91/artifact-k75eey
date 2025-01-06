@@ -50,7 +50,7 @@ subprojects {
             resolutionStrategy {
                 force 'com.facebook.react:react-native:0.71.0'
                 force 'org.jetbrains.kotlin:kotlin-android:1.8.0'
-                force 'androidx.core:core-ktx:1.9.0'
+                force 'androidx.core:core-ktx:1.15.0'
                 force 'androidx.fragment:fragment-ktx:1.5.5'
                 force 'androidx.biometric:biometric:1.1.0'
                 force 'org.d3js:d3-android:7.0.0'
