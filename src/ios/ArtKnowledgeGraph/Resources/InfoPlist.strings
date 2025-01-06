@@ -1,0 +1,36 @@
+/* 
+ * InfoPlist.strings
+ * Art Knowledge Graph iOS App
+ * 
+ * Localized system permission descriptions and app metadata
+ * Supports: iOS 14+
+ * Languages: EN (Base localization)
+ * Encoding: UTF-16
+ */
+
+/* App Display Name */
+"CFBundleDisplayName" = "Art Knowledge Graph";
+
+/* Camera Permission - Used for artwork capture
+ * Context: Primary method for users to analyze new artworks
+ * Privacy: Emphasizes secure processing and user control
+ */
+"NSCameraUsageDescription" = "We need camera access to capture artwork images for analysis and graph generation. Your photos are processed securely and you can revoke access at any time.";
+
+/* Photo Library Permission - Used for existing artwork selection
+ * Context: Alternative method for artwork analysis
+ * Privacy: Emphasizes selective access and user choice
+ */
+"NSPhotoLibraryUsageDescription" = "Access to your photo library allows you to select existing artwork images for analysis. We only access the images you specifically choose.";
+
+/* Face ID Permission - Used for secure feature access
+ * Context: Premium feature authentication
+ * Privacy: Emphasizes local-only biometric processing
+ */
+"NSFaceIDUsageDescription" = "Face ID provides secure access to your premium features and saved graphs. Your biometric data never leaves your device.";
+
+/* Location Permission - Used for artwork context
+ * Context: Geographical metadata enhancement
+ * Privacy: Emphasizes limited usage scope and user control
+ */
+"NSLocationWhenInUseUsageDescription" = "Location data helps enrich artwork metadata with geographical context, enhancing your art exploration experience. Location is only used when you're using the app.";
