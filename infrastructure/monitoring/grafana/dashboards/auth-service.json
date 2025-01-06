@@ -1,0 +1,220 @@
+{
+  "id": null,
+  "uid": "auth-service-dashboard",
+  "title": "Authentication Service Dashboard",
+  "tags": ["auth", "security", "monitoring", "production"],
+  "timezone": "browser",
+  "refresh": "10s",
+  "schemaVersion": 36,
+  "version": 1,
+  "editable": true,
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "title": "Authentication Success Rate",
+      "type": "gauge",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(auth_success_total{environment=\"$environment\", datacenter=\"$datacenter\"}[5m])) / sum(rate(auth_attempts_total{environment=\"$environment\", datacenter=\"$datacenter\"}[5m])) * 100",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "thresholds": {
+          "steps": [
+            { "value": 0, "color": "red" },
+            { "value": 85, "color": "yellow" },
+            { "value": 95, "color": "green" }
+          ]
+        },
+        "minValue": 0,
+        "maxValue": 100,
+        "unit": "percent"
+      }
+    },
+    {
+      "title": "Failed Authentication Attempts by Source",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 0,
+        "w": 16,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(auth_failed_attempts_total{environment=\"$environment\", datacenter=\"$datacenter\"}[5m])) by (source_ip, failure_reason)",
+          "refId": "A",
+          "legendFormat": "{{source_ip}} - {{failure_reason}}"
+        }
+      ],
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "alert": {
+        "name": "High Failed Auth Rate",
+        "conditions": [
+          {
+            "type": "query",
+            "query": {
+              "params": ["A", "5m", "now"]
+            },
+            "reducer": {
+              "type": "avg",
+              "params": []
+            },
+            "evaluator": {
+              "type": "gt",
+              "params": [10]
+            }
+          }
+        ],
+        "notifications": [
+          {
+            "uid": "security_team_notification"
+          }
+        ],
+        "frequency": "1m",
+        "for": "5m"
+      }
+    },
+    {
+      "title": "Authentication Latency",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(auth_request_duration_seconds_bucket{environment=\"$environment\", datacenter=\"$datacenter\"}[$interval])) by (le))",
+          "refId": "A",
+          "legendFormat": "p95"
+        }
+      ],
+      "options": {
+        "unit": "s"
+      }
+    },
+    {
+      "title": "Active Sessions",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 6,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum(auth_active_sessions{environment=\"$environment\", datacenter=\"$datacenter\"})",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "environment",
+        "type": "custom",
+        "query": "prod,staging,dev",
+        "current": {
+          "selected": true,
+          "text": "prod",
+          "value": "prod"
+        },
+        "multi": false,
+        "includeAll": false,
+        "options": [
+          {"text": "prod", "value": "prod"},
+          {"text": "staging", "value": "staging"},
+          {"text": "dev", "value": "dev"}
+        ]
+      },
+      {
+        "name": "datacenter",
+        "type": "custom",
+        "query": "us-east-1,us-west-2,eu-west-1",
+        "current": {
+          "selected": true,
+          "text": "us-east-1",
+          "value": "us-east-1"
+        },
+        "multi": true,
+        "includeAll": true,
+        "options": [
+          {"text": "us-east-1", "value": "us-east-1"},
+          {"text": "us-west-2", "value": "us-west-2"},
+          {"text": "eu-west-1", "value": "eu-west-1"}
+        ]
+      },
+      {
+        "name": "interval",
+        "type": "interval",
+        "query": "1m,5m,10m,30m,1h,6h,12h,1d",
+        "current": {
+          "selected": true,
+          "text": "5m",
+          "value": "5m"
+        }
+      }
+    ]
+  },
+  "annotations": {
+    "list": [
+      {
+        "name": "Deployments",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "expr": "changes(auth_service_version{environment=\"$environment\"}[1m]) > 0",
+        "enable": true,
+        "iconColor": "rgb(255, 96, 96)",
+        "tags": ["deployment"]
+      },
+      {
+        "name": "Maintenance Windows",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "expr": "maintenance_window{service=\"auth\", environment=\"$environment\"}",
+        "enable": true,
+        "iconColor": "rgb(255, 204, 0)",
+        "tags": ["maintenance"]
+      }
+    ]
+  }
+}
