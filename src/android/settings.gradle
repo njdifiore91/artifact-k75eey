@@ -64,7 +64,7 @@ gradle.beforeProject { project ->
             // Force specific dependency versions for security
             force 'com.facebook.react:react-native:0.71.0'
             force 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0'
-            force 'com.android.tools.build:gradle:7.3.1'
+            force 'com.android.tools.build:gradle:8.8.1'
         }
     }
 }
