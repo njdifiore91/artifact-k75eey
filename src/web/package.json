@@ -38,7 +38,7 @@
     "focus-trap-react": "^9.0.0",
     "framer-motion": "^6.0.0",
     "hammerjs": "^2.0.8",
-    "i18next": "^23.0.0",
+    "i18next": "^24.2.3",
     "lodash": "^4.17.21",
     "lottie-web": "^5.9.0",
     "newrelic-browser": "^1.234.0",
